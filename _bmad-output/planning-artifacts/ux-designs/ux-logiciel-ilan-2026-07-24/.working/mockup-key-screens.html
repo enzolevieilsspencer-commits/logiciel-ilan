@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquettes — App stock & marge Vinted (Vinted-friendly)</title>
+<style>
+  :root{
+    --teal:#09B1BA;        /* accent principal (esprit Vinted) */
+    --teal-dark:#007782;
+    --mint:#E6F7F8;        /* fond de carte doux */
+    --ink:#1E2A2B;         /* texte principal */
+    --muted:#6B7B7C;       /* texte secondaire */
+    --bg:#F4FBFB;          /* fond app */
+    --white:#FFFFFF;
+    --green:#22A45D;       /* positif / marge */
+    --amber:#E8A13A;       /* argent dormant / alerte */
+    --radius:22px;
+    --shadow:0 6px 20px rgba(9,177,186,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+  body{background:#DCEDED;padding:32px 16px;color:var(--ink);}
+  h1.title{text-align:center;font-size:22px;margin-bottom:6px;color:var(--teal-dark);}
+  p.sub{text-align:center;color:#4a5a5b;margin-bottom:28px;font-size:14px;}
+  .screens{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;align-items:flex-start;}
+  .phone{
+    width:300px;background:var(--bg);border-radius:38px;padding:16px 14px 20px;
+    box-shadow:0 12px 40px rgba(0,0,0,.18);border:8px solid #12303233;position:relative;
+  }
+  .notch{width:120px;height:22px;background:#0d1b1c;border-radius:0 0 16px 16px;margin:-16px auto 10px;}
+  .screen-label{text-align:center;font-size:13px;font-weight:600;color:var(--teal-dark);margin-bottom:10px;}
+  .greet{font-size:18px;font-weight:700;margin:4px 4px 14px;}
+  .greet span{font-size:22px;}
+  .card{background:var(--white);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;}
+  .card.hero{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;box-shadow:0 8px 24px rgba(0,119,130,.35);}
+  .card .lbl{font-size:13px;opacity:.85;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .card .big{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+  .pill{display:inline-block;background:rgba(255,255,255,.22);padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;margin-left:8px;vertical-align:middle;}
+  .card.dormant .big{color:var(--amber);font-size:24px;}
+  .card.dormant .lbl{color:var(--muted);}
+  .section-h{font-size:14px;font-weight:700;color:var(--muted);margin:6px 4px 10px;display:flex;justify-content:space-between;}
+  .item{display:flex;gap:12px;align-items:center;background:var(--white);border-radius:18px;padding:10px;box-shadow:var(--shadow);margin-bottom:10px;}
+  .thumb{width:52px;height:52px;border-radius:14px;background:var(--mint);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+  .item .info{flex:1;min-width:0;}
+  .item .name{font-weight:700;font-size:14px;}
+  .item .meta{font-size:12px;color:var(--muted);}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+  .tag.stock{background:var(--mint);color:var(--teal-dark);}
+  .tag.sold{background:#E4F6EC;color:var(--green);}
+  .item .marge{font-weight:800;font-size:14px;color:var(--green);text-align:right;}
+  .fab{position:absolute;bottom:74px;right:22px;width:58px;height:58px;border-radius:50%;background:var(--teal);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(9,177,186,.5);}
+  .tabbar{position:absolute;bottom:12px;left:14px;right:14px;height:56px;background:var(--white);border-radius:24px;box-shadow:var(--shadow);display:flex;justify-content:space-around;align-items:center;font-size:22px;}
+  .tabbar .active{color:var(--teal);}
+  .tabbar .off{color:#B7C6C6;}
+  /* form */
+  .photo-drop{height:120px;border-radius:var(--radius);background:var(--mint);border:2px dashed var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--teal-dark);font-size:13px;font-weight:600;margin-bottom:14px;gap:4px;}
+  .photo-drop .cam{font-size:30px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 2px 5px;}
+  .input{background:var(--white);border-radius:14px;padding:12px 14px;font-size:14px;box-shadow:var(--shadow);color:var(--ink);}
+  .input.ph{color:#A9B8B8;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{background:var(--white);border:1.5px solid #D6E7E7;border-radius:999px;padding:7px 13px;font-size:13px;color:var(--muted);}
+  .chip.sel{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:700;}
+  .row2{display:flex;gap:10px;}
+  .row2 .field{flex:1;}
+  .btn{background:var(--teal);color:#fff;text-align:center;padding:15px;border-radius:18px;font-weight:800;font-size:15px;box-shadow:0 8px 20px rgba(9,177,186,.4);margin-top:6px;}
+  /* detail */
+  .detail-photo{height:150px;border-radius:var(--radius);background:linear-gradient(135deg,var(--mint),#cfefef);display:flex;align-items:center;justify-content:center;font-size:54px;margin-bottom:14px;}
+  .kv{display:flex;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #EAF3F3;font-size:14px;}
+  .kv .k{color:var(--muted);}
+  .kv .v{font-weight:700;}
+  .marge-box{background:#E4F6EC;border-radius:var(--radius);padding:16px;text-align:center;margin:14px 0;}
+  .marge-box .m{font-size:28px;font-weight:800;color:var(--green);}
+  .marge-box .s{font-size:13px;color:var(--green);opacity:.8;}
+  .legend{max-width:960px;margin:30px auto 0;background:#fff;border-radius:16px;padding:18px 22px;font-size:13px;color:#3a4a4b;line-height:1.6;box-shadow:0 4px 16px rgba(0,0,0,.06);}
+  .legend b{color:var(--teal-dark);}
+  .sw{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:middle;margin-right:5px;}
+</style>
+</head>
+<body>
+  <h1 class="title">App stock &amp; marge Vinted — direction « Vinted-friendly »</h1>
+  <p class="sub">Vert menthe/teal · gros arrondis · convivial — maquette pour valider l'ambiance</p>
+
+  <div class="screens">
+
+    <!-- 1. DASHBOARD -->
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-label">① Accueil / Tableau de bord</div>
+      <div class="greet"><span>👋</span> Salut Ilan</div>
+
+      <div class="card hero">
+        <div class="lbl">💰 Bénéfices — ce mois</div>
+        <div class="big">1 240 €<span class="pill">▲ 62 %</span></div>
+      </div>
+
+      <div class="card dormant">
+        <div class="lbl">😴 Argent qui dort en stock</div>
+        <div class="big">320 €</div>
+      </div>
+
+      <div class="section-h"><span>Mon stock</span><span>🔍 Filtrer</span></div>
+      <div class="item">
+        <div class="thumb">🧥</div>
+        <div class="info"><div class="name">Veste en jean Levi's</div>
+          <div class="meta">Veste · Bleu · M · <span class="tag stock">en stock</span></div></div>
+      </div>
+      <div class="item">
+        <div class="thumb">👕</div>
+        <div class="info"><div class="name">T-shirt vintage</div>
+          <div class="meta">Haut · Blanc · L · <span class="tag sold">vendu</span></div></div>
+        <div class="marge">+19 €</div>
+      </div>
+
+      <div class="fab">+</div>
+      <div class="tabbar"><span class="active">🏠</span><span class="off">📦</span><span class="off">📊</span><span class="off">⚙️</span></div>
+      <div style="height:60px"></div>
+    </div>
+
+    <!-- 2. ADD ITEM -->
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-label">② Ajouter une pièce</div>
+      <div class="greet" style="font-size:16px">Nouvelle pièce</div>
+
+      <div class="photo-drop"><div class="cam">📷</div>Prendre une photo</div>
+
+      <div class="field"><label>Catégorie</label>
+        <div class="chips"><span class="chip">Haut</span><span class="chip sel">Veste</span><span class="chip">Pantalon</span><span class="chip">Robe</span></div>
+      </div>
+      <div class="field"><label>Couleur</label>
+        <div class="chips"><span class="chip sel">Bleu</span><span class="chip">Noir</span><span class="chip">Blanc</span><span class="chip">Vert</span></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Taille</label><div class="input">M</div></div>
+        <div class="field"><label>Marque</label><div class="input ph">optionnel</div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Prix d'achat</label><div class="input">6 €</div></div>
+        <div class="field"><label>Prix de vente</label><div class="input ph">plus tard</div></div>
+      </div>
+      <div class="btn">Ajouter au stock</div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- 3. DETAIL / SELL -->
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-label">③ Fiche pièce &amp; marge</div>
+      <div class="detail-photo">🧥</div>
+      <div class="greet" style="font-size:16px">Veste en jean Levi's</div>
+
+      <div class="kv"><span class="k">Statut</span><span class="v"><span class="tag sold">vendu</span></span></div>
+      <div class="kv"><span class="k">Prix d'achat</span><span class="v">6 €</span></div>
+      <div class="kv"><span class="k">Prix de vente</span><span class="v">25 €</span></div>
+
+      <div class="marge-box">
+        <div class="m">+19 €</div>
+        <div class="s">marge de cette pièce : 76 %</div>
+      </div>
+
+      <div class="btn" style="background:#fff;color:var(--teal-dark);box-shadow:0 4px 14px rgba(0,0,0,.08)">Modifier le prix de vente</div>
+      <div style="height:8px"></div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <b>Comment lire ces maquettes</b> — c'est un test d'<b>ambiance visuelle</b>, pas le design final au pixel près.<br>
+    <span class="sw" style="background:#09B1BA"></span><b>Teal/vert menthe</b> = accent principal (esprit Vinted) &nbsp;·&nbsp;
+    <span class="sw" style="background:#22A45D"></span><b>Vert</b> = marge/positif &nbsp;·&nbsp;
+    <span class="sw" style="background:#E8A13A"></span><b>Ambre</b> = argent dormant.<br>
+    ① Le <b>bénéfice</b> domine (carte teal en héro) avec sa <b>marge pondérée à côté</b> ; l'<b>argent dormant</b> juste en dessous ; le stock en liste. ② <b>Ajout ultra-rapide</b> : photo + chips à taper. ③ La <b>marge propre</b> de la pièce s'affiche en grand.
+  </div>
+</body>
+</html>

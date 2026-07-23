@@ -1,0 +1,78 @@
+# generated: 2026-07-24
+# last_updated: 2026-07-24
+# project: logiciel-ilan
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+
+generated: 2026-07-24
+last_updated: 2026-07-24
+project: logiciel-ilan
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1 — Fondations & Connexion
+  epic-1: backlog
+  1-1-initialiser-le-projet-pwa-installable: backlog
+  1-2-brancher-supabase-et-poser-les-design-tokens: backlog
+  1-3-connexion-securisee-ilan: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2 — Gérer son stock
+  epic-2: backlog
+  2-1-ajouter-une-piece: backlog
+  2-2-parcourir-son-stock: backlog
+  2-3-consulter-modifier-et-supprimer-une-piece: backlog
+  2-4-filtrer-le-stock: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3 — Vendre & connaître sa marge
+  epic-3: backlog
+  3-1-passer-une-piece-en-vendue: backlog
+  3-2-voir-la-marge-d-une-piece: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4 — Piloter (tableau de bord)
+  epic-4: backlog
+  4-1-tableau-de-bord-benefices-marge-moyenne-argent-dormant: backlog
+  4-2-historique-des-ventes: backlog
+  4-3-benefices-par-periode: backlog
+  4-4-alerte-pieces-qui-stagnent: backlog
+  epic-4-retrospective: optional
