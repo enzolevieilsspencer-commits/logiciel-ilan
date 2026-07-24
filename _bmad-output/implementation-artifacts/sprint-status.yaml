@@ -49,8 +49,8 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # Epic 1 — Fondations & Connexion
-  epic-1: backlog
-  1-1-initialiser-le-projet-pwa-installable: backlog
+  epic-1: in-progress
+  1-1-initialiser-le-projet-pwa-installable: review
   1-2-brancher-supabase-et-poser-les-design-tokens: backlog
   1-3-connexion-securisee-ilan: backlog
   epic-1-retrospective: optional
