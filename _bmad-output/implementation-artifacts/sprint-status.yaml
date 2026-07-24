@@ -52,7 +52,7 @@ development_status:
   epic-1: in-progress
   1-1-initialiser-le-projet-pwa-installable: review
   1-2-brancher-supabase-et-poser-les-design-tokens: review
-  1-3-connexion-securisee-ilan: backlog
+  1-3-connexion-securisee-ilan: review
   epic-1-retrospective: optional
 
   # Epic 2 — Gérer son stock
