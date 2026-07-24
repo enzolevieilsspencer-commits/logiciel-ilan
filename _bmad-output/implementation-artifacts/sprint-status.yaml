@@ -56,8 +56,8 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2 — Gérer son stock
-  epic-2: backlog
-  2-1-ajouter-une-piece: backlog
+  epic-2: in-progress
+  2-1-ajouter-une-piece: review
   2-2-parcourir-son-stock: backlog
   2-3-consulter-modifier-et-supprimer-une-piece: backlog
   2-4-filtrer-le-stock: backlog
