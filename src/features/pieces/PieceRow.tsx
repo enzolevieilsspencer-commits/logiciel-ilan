@@ -1,4 +1,4 @@
-import { computeMargin } from '../../lib/derive'
+import { computeMargin, isStale } from '../../lib/derive'
 import type { Piece } from './types'
 
 interface PieceRowProps {
@@ -17,6 +17,7 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
   const title = piece.marque ? `${piece.categorie ?? 'Pièce'} · ${piece.marque}` : piece.categorie ?? 'Pièce'
   const vendue = piece.statut === 'vendue'
   const marge = vendue ? computeMargin(piece.prix_achat_cents, piece.prix_vente_cents) : null
+  const stagnante = !vendue && isStale(piece.created_at)
 
   return (
     <button
@@ -47,9 +48,14 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
           )}
         </div>
       ) : (
-        <span className="shrink-0 rounded-full bg-app px-2.5 py-1 text-xs font-semibold text-teal-dark">
-          en stock
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className="rounded-full bg-app px-2.5 py-1 text-xs font-semibold text-teal-dark">
+            en stock
+          </span>
+          {stagnante && (
+            <span className="text-xs font-semibold text-amber">💤 à brader</span>
+          )}
+        </div>
       )}
     </button>
   )

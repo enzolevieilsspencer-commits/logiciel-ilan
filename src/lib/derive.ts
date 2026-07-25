@@ -62,3 +62,20 @@ export function computeDashboard(pieces: PriceRow[], soldAfterISO: string | null
   const margeMoyennePct = sommeAchatVendues > 0 ? (beneficesCents / sommeAchatVendues) * 100 : null
   return { beneficesCents, margeMoyennePct, argentDormantCents }
 }
+
+/** Seuil de stagnation (jours) — non configurable en v1. */
+export const STALE_THRESHOLD_DAYS = 60
+
+/** Jours écoulés depuis une date ISO. */
+export function daysSince(iso: string, now: Date = new Date()): number {
+  return (now.getTime() - new Date(iso).getTime()) / 86_400_000
+}
+
+/** Vrai si une pièce en stock stagne (créée il y a strictement plus que le seuil). */
+export function isStale(
+  createdAtISO: string,
+  thresholdDays: number = STALE_THRESHOLD_DAYS,
+  now: Date = new Date(),
+): boolean {
+  return daysSince(createdAtISO, now) > thresholdDays
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeMargin, computeDashboard, type PriceRow } from './derive'
+import { computeMargin, computeDashboard, isStale, daysSince, type PriceRow } from './derive'
 
 describe('computeMargin', () => {
   it('calcule une marge positive (achat 6,00 € → vente 25,00 €)', () => {
@@ -77,5 +77,25 @@ describe('computeDashboard', () => {
       { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 300, sold_at: '2020-01-01T00:00:00Z' },
     ]
     expect(computeDashboard(pieces, null).beneficesCents).toBe(200)
+  })
+})
+
+describe('isStale / daysSince', () => {
+  const now = new Date('2026-07-25T00:00:00Z')
+
+  it('une pièce en stock depuis 70 jours stagne', () => {
+    const created = new Date('2026-05-16T00:00:00Z').toISOString() // ~70 j avant
+    expect(daysSince(created, now)).toBeGreaterThan(60)
+    expect(isStale(created, 60, now)).toBe(true)
+  })
+
+  it('une pièce récente (10 jours) ne stagne pas', () => {
+    const created = new Date('2026-07-15T00:00:00Z').toISOString()
+    expect(isStale(created, 60, now)).toBe(false)
+  })
+
+  it('au seuil exact, non stagnante (strictement supérieur)', () => {
+    const created = new Date('2026-05-26T00:00:00Z').toISOString() // exactement 60 j
+    expect(isStale(created, 60, now)).toBe(false)
   })
 })
