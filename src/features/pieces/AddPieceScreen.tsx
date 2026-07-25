@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { ArrowLeft, Camera, Check } from 'lucide-react'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, eurosToCents } from './types'
 import { createPiece } from './addPiece'
@@ -10,6 +11,7 @@ interface AddPieceScreenProps {
 
 export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
   const [photo, setPhoto] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [categorie, setCategorie] = useState<string | null>(null)
   const [couleur, setCouleur] = useState<string | null>(null)
   const [taille, setTaille] = useState('')
@@ -17,6 +19,16 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
   const [prixAchat, setPrixAchat] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!photo) {
+      setPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(photo)
+    setPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [photo])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -28,16 +40,8 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
     }
     setSubmitting(true)
     try {
-      const { photoSkipped } = await createPiece({
-        photo,
-        categorie,
-        couleur,
-        taille,
-        marque,
-        prixAchatCents,
-      })
+      const { photoSkipped } = await createPiece({ photo, categorie, couleur, taille, marque, prixAchatCents })
       if (photoSkipped) {
-        // La pièce est créée ; on prévient juste que la photo n'a pas pu être enregistrée.
         alert('Pièce ajoutée, mais la photo n’a pas pu être enregistrée. Tu pourras la rajouter plus tard.')
       }
       onAdded()
@@ -49,27 +53,40 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
 
   const inputClass =
     'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
+  const labelClass = 'flex flex-1 flex-col gap-1 text-sm font-semibold text-muted'
 
   return (
-    <main className="min-h-screen bg-app text-ink p-5">
-      <div className="mx-auto flex max-w-md flex-col gap-5">
+    <main className="min-h-screen bg-app p-4 text-ink md:p-8">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={onCancel} className="text-sm font-semibold text-muted">
-            ← Annuler
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-1.5 text-sm font-semibold text-muted"
+          >
+            <ArrowLeft size={18} /> Annuler
           </button>
           <h1 className="text-lg font-bold text-teal-dark">Nouvelle pièce</h1>
-          <span className="w-14" />
+          <span className="w-16" />
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <label className="flex flex-col gap-2 text-sm font-semibold text-muted">
-            Photo
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+          {/* Zone photo cliquable */}
+          <label className="flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-app">
+            {previewUrl ? (
+              <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex flex-col items-center gap-2 text-teal-dark">
+                <Camera size={30} />
+                <span className="text-sm font-semibold">Prendre une photo</span>
+              </span>
+            )}
             <input
               type="file"
               accept="image/*"
               capture="environment"
               onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-              className="text-sm text-ink"
+              className="hidden"
             />
           </label>
 
@@ -84,11 +101,11 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
           </div>
 
           <div className="flex gap-3">
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Taille
               <input value={taille} onChange={(e) => setTaille(e.target.value)} className={inputClass} />
             </label>
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Marque <span className="font-normal">(option.)</span>
               <input value={marque} onChange={(e) => setMarque(e.target.value)} className={inputClass} />
             </label>
@@ -110,9 +127,9 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-[var(--radius-md)] bg-teal py-3.5 font-bold text-white shadow-md disabled:opacity-60"
+            className="flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-teal py-3.5 font-bold text-white shadow-md disabled:opacity-60"
           >
-            {submitting ? 'Ajout…' : 'Ajouter au stock'}
+            <Check size={18} /> {submitting ? 'Ajout…' : 'Ajouter au stock'}
           </button>
         </form>
       </div>

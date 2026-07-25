@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { ArrowLeft, Camera, CheckCircle2, RotateCcw, Shirt, Tag, Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, centsToEuros, eurosToCents, type Piece } from './types'
@@ -30,7 +31,6 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   const [statusBusy, setStatusBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // URL signée de la photo existante.
   useEffect(() => {
     if (!piece.photo_path) return
     let active = true
@@ -45,7 +45,6 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
     }
   }, [piece.photo_path])
 
-  // Aperçu local de la nouvelle photo choisie.
   useEffect(() => {
     if (!newPhoto) {
       setPreviewUrl(null)
@@ -141,9 +140,9 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
 
   const inputClass =
     'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
+  const labelClass = 'flex flex-1 flex-col gap-1 text-sm font-semibold text-muted'
   const photoSrc = previewUrl ?? signedUrl
 
-  // Marge dérivée en live depuis les valeurs courantes du formulaire (jamais stockée, AD-2).
   const margin = computeMargin(eurosToCents(prixAchat), eurosToCents(prixVente))
   let margeLabel: string | null = null
   let margePositive = true
@@ -155,45 +154,46 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   }
 
   return (
-    <main className="min-h-screen bg-app text-ink p-5">
-      <div className="mx-auto flex max-w-md flex-col gap-5">
+    <main className="min-h-screen bg-app p-4 text-ink md:p-8">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={onBack} className="text-sm font-semibold text-muted">
-            ← Retour
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-sm font-semibold text-muted"
+          >
+            <ArrowLeft size={18} /> Retour
           </button>
           <h1 className="text-lg font-bold text-teal-dark">Fiche pièce</h1>
-          <span className="w-14" />
+          <span className="w-16" />
         </div>
 
-        <div className="flex h-48 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-white">
+        <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-white shadow-sm">
           {photoSrc ? (
             <img src={photoSrc} alt="" className="h-full w-full object-cover" />
           ) : (
-            <span className="text-5xl">👕</span>
+            <Shirt size={56} className="text-teal-dark/40" />
           )}
-        </div>
-
-        {margeLabel && (
-          <div className="rounded-[var(--radius-card)] bg-white p-4 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Marge</p>
-            <p className={`text-3xl font-extrabold ${margePositive ? 'text-green' : 'text-amber'}`}>
-              {margeLabel}
-            </p>
-          </div>
-        )}
-
-        <form onSubmit={handleSave} className="flex flex-col gap-5">
-          <label className="flex flex-col gap-2 text-sm font-semibold text-muted">
-            Remplacer la photo
+          <label className="absolute bottom-3 right-3 flex cursor-pointer items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-teal-dark shadow backdrop-blur">
+            <Camera size={16} /> Photo
             <input
               type="file"
               accept="image/*"
               capture="environment"
               onChange={(e) => setNewPhoto(e.target.files?.[0] ?? null)}
-              className="text-sm text-ink"
+              className="hidden"
             />
           </label>
+        </div>
 
+        {margeLabel && (
+          <div className="rounded-[var(--radius-card)] bg-white p-4 text-center shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Marge</p>
+            <p className={`text-3xl font-extrabold ${margePositive ? 'text-green' : 'text-amber'}`}>{margeLabel}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSave} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-2 text-sm font-semibold text-muted">
             Catégorie
             <Chips options={CATEGORIES} value={categorie} onChange={setCategorie} />
@@ -205,22 +205,22 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
           </div>
 
           <div className="flex gap-3">
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Taille
               <input value={taille} onChange={(e) => setTaille(e.target.value)} className={inputClass} />
             </label>
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Marque
               <input value={marque} onChange={(e) => setMarque(e.target.value)} className={inputClass} />
             </label>
           </div>
 
           <div className="flex gap-3">
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Prix d’achat (€)
               <input inputMode="decimal" value={prixAchat} onChange={(e) => setPrixAchat(e.target.value)} className={inputClass} />
             </label>
-            <label className="flex flex-1 flex-col gap-1 text-sm font-semibold text-muted">
+            <label className={labelClass}>
               Prix de vente (€)
               <input inputMode="decimal" value={prixVente} onChange={(e) => setPrixVente(e.target.value)} className={inputClass} />
             </label>
@@ -237,23 +237,24 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
           </button>
         </form>
 
-        <div className="rounded-[var(--radius-md)] bg-white p-4">
+        <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
           {piece.statut === 'vendue' ? (
             <div className="flex flex-col gap-3">
-              <p className="text-sm font-semibold text-green">
-                Vendu{piece.sold_at ? ` le ${new Date(piece.sold_at).toLocaleDateString('fr-FR')}` : ''} ✓
+              <p className="flex items-center gap-2 text-sm font-semibold text-green">
+                <CheckCircle2 size={18} />
+                Vendu{piece.sold_at ? ` le ${new Date(piece.sold_at).toLocaleDateString('fr-FR')}` : ''}
               </p>
               <button
                 type="button"
                 onClick={handleRestock}
                 disabled={statusBusy}
-                className="self-start rounded-[var(--radius-md)] bg-app px-4 py-2 text-sm font-semibold text-teal-dark disabled:opacity-60"
+                className="flex items-center gap-2 self-start rounded-[var(--radius-md)] bg-app px-4 py-2 text-sm font-semibold text-teal-dark disabled:opacity-60"
               >
-                {statusBusy ? '…' : 'Remettre en stock'}
+                <RotateCcw size={16} /> {statusBusy ? '…' : 'Remettre en stock'}
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <p className="text-sm text-muted">
                 Cette pièce est <span className="font-semibold text-teal-dark">en stock</span>.
               </p>
@@ -261,34 +262,34 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
                 type="button"
                 onClick={handleSell}
                 disabled={statusBusy}
-                className="rounded-[var(--radius-md)] bg-green py-3 font-bold text-white shadow-md disabled:opacity-60"
+                className="flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-green py-3 font-bold text-white shadow-md disabled:opacity-60"
               >
-                {statusBusy ? 'Enregistrement…' : 'Marquer comme vendue'}
+                <Tag size={18} /> {statusBusy ? 'Enregistrement…' : 'Marquer comme vendue'}
               </button>
             </div>
           )}
         </div>
 
-        <div className="mt-2 border-t border-black/5 pt-4">
+        <div>
           {!confirmDelete ? (
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="text-sm font-semibold text-amber"
+              className="flex items-center gap-1.5 text-sm font-semibold text-amber"
             >
-              Supprimer cette pièce
+              <Trash2 size={16} /> Supprimer cette pièce
             </button>
           ) : (
-            <div className="flex flex-col gap-3 rounded-[var(--radius-md)] bg-white p-4">
+            <div className="flex flex-col gap-3 rounded-[var(--radius-card)] bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-ink">Supprimer définitivement cette pièce ?</p>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="rounded-[var(--radius-md)] bg-amber px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-[var(--radius-md)] bg-amber px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
                 >
-                  {deleting ? 'Suppression…' : 'Confirmer'}
+                  <Trash2 size={16} /> {deleting ? 'Suppression…' : 'Confirmer'}
                 </button>
                 <button
                   type="button"
