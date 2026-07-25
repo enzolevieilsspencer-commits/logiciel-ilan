@@ -5,6 +5,7 @@ import { Fab } from '../components/ui/Fab'
 import { usePieces } from '../features/pieces/usePieces'
 import { StockScreen } from '../features/pieces/StockScreen'
 import { AddPieceScreen } from '../features/pieces/AddPieceScreen'
+import { PieceDetailScreen } from '../features/pieces/PieceDetailScreen'
 import type { Piece } from '../features/pieces/types'
 
 export function AppShell() {
@@ -26,20 +27,21 @@ export function AppShell() {
     )
   }
 
-  // Placeholder de la fiche pièce — la vraie fiche est la Story 2.3.
+  // Fiche pièce (consulter / modifier / supprimer).
   if (selected) {
     return (
-      <main className="min-h-screen bg-app text-ink flex flex-col items-center justify-center gap-3 p-6">
-        <p className="font-semibold">{selected.categorie ?? 'Pièce'}</p>
-        <p className="text-sm text-muted">La fiche détaillée arrive bientôt. 🛠️</p>
-        <button
-          type="button"
-          onClick={() => setSelected(null)}
-          className="rounded-[var(--radius-md)] bg-white px-4 py-2 text-sm font-semibold text-teal-dark shadow"
-        >
-          ← Retour
-        </button>
-      </main>
+      <PieceDetailScreen
+        piece={selected}
+        onBack={() => setSelected(null)}
+        onChanged={() => {
+          setSelected(null)
+          refresh()
+        }}
+        onDeleted={() => {
+          setSelected(null)
+          refresh()
+        }}
+      />
     )
   }
 

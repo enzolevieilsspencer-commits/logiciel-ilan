@@ -59,7 +59,7 @@ development_status:
   epic-2: in-progress
   2-1-ajouter-une-piece: review
   2-2-parcourir-son-stock: review
-  2-3-consulter-modifier-et-supprimer-une-piece: backlog
+  2-3-consulter-modifier-et-supprimer-une-piece: review
   2-4-filtrer-le-stock: backlog
   epic-2-retrospective: optional
 

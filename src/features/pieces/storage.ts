@@ -29,3 +29,12 @@ export async function uploadPhoto(file: File): Promise<string> {
   if (error) throw error
   return path
 }
+
+/** Supprime une photo du bucket (best-effort : n'échoue jamais le flux appelant). */
+export async function deletePhoto(path: string): Promise<void> {
+  try {
+    await supabase.storage.from(BUCKET).remove([path])
+  } catch {
+    // ignoré volontairement : la suppression de la photo ne doit pas bloquer.
+  }
+}
