@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, centsToEuros, eurosToCents, type Piece } from './types'
 import { uploadPhoto, deletePhoto } from './storage'
-import { updatePiece, deletePiece, type PiecePatch } from './updatePiece'
+import { updatePiece, deletePiece, sellPiece, restockPiece, type PiecePatch } from './updatePiece'
 
 interface PieceDetailScreenProps {
   piece: Piece
@@ -26,6 +26,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [statusBusy, setStatusBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // URL signée de la photo existante.
@@ -108,6 +109,35 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
     }
   }
 
+  async function handleSell() {
+    setError(null)
+    const prixVenteCents = eurosToCents(prixVente)
+    if (prixVenteCents === null) {
+      setError('Indique le prix de vente pour marquer comme vendue.')
+      return
+    }
+    setStatusBusy(true)
+    try {
+      await sellPiece(piece.id, prixVenteCents)
+      onChanged()
+    } catch {
+      setError('Impossible de marquer comme vendue. Réessaie.')
+      setStatusBusy(false)
+    }
+  }
+
+  async function handleRestock() {
+    setError(null)
+    setStatusBusy(true)
+    try {
+      await restockPiece(piece.id)
+      onChanged()
+    } catch {
+      setError('Impossible de remettre en stock. Réessaie.')
+      setStatusBusy(false)
+    }
+  }
+
   const inputClass =
     'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
   const photoSrc = previewUrl ?? signedUrl
@@ -185,6 +215,38 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
             {saving ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </form>
+
+        <div className="rounded-[var(--radius-md)] bg-white p-4">
+          {piece.statut === 'vendue' ? (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm font-semibold text-green">
+                Vendu{piece.sold_at ? ` le ${new Date(piece.sold_at).toLocaleDateString('fr-FR')}` : ''} ✓
+              </p>
+              <button
+                type="button"
+                onClick={handleRestock}
+                disabled={statusBusy}
+                className="self-start rounded-[var(--radius-md)] bg-app px-4 py-2 text-sm font-semibold text-teal-dark disabled:opacity-60"
+              >
+                {statusBusy ? '…' : 'Remettre en stock'}
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-muted">
+                Cette pièce est <span className="font-semibold text-teal-dark">en stock</span>.
+              </p>
+              <button
+                type="button"
+                onClick={handleSell}
+                disabled={statusBusy}
+                className="rounded-[var(--radius-md)] bg-green py-3 font-bold text-white shadow-md disabled:opacity-60"
+              >
+                {statusBusy ? 'Enregistrement…' : 'Marquer comme vendue'}
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="mt-2 border-t border-black/5 pt-4">
           {!confirmDelete ? (

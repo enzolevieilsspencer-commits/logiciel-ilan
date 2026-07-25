@@ -19,3 +19,21 @@ export async function deletePiece(id: string): Promise<void> {
   const { error } = await supabase.from('piece').delete().eq('id', id)
   if (error) throw error
 }
+
+/** Marque une pièce comme vendue : fixe le prix de vente et la date de vente. */
+export async function sellPiece(id: string, prixVenteCents: number): Promise<void> {
+  const { error } = await supabase
+    .from('piece')
+    .update({ statut: 'vendue', prix_vente_cents: prixVenteCents, sold_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) throw error
+}
+
+/** Remet une pièce vendue en stock (réversible) : efface la date de vente. */
+export async function restockPiece(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('piece')
+    .update({ statut: 'en_stock', sold_at: null })
+    .eq('id', id)
+  if (error) throw error
+}

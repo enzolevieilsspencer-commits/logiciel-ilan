@@ -64,8 +64,8 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3 — Vendre & connaître sa marge
-  epic-3: backlog
-  3-1-passer-une-piece-en-vendue: backlog
+  epic-3: in-progress
+  3-1-passer-une-piece-en-vendue: review
   3-2-voir-la-marge-d-une-piece: backlog
   epic-3-retrospective: optional
 
