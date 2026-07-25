@@ -26,6 +26,7 @@ export interface PriceRow {
   prix_achat_cents: number | null
   prix_vente_cents: number | null
   sold_at: string | null
+  categorie?: string | null
 }
 
 export interface DashboardData {
@@ -78,4 +79,49 @@ export function isStale(
   now: Date = new Date(),
 ): boolean {
   return daysSince(createdAtISO, now) > thresholdDays
+}
+
+export interface MonthBucket {
+  label: string // ex. « juil. »
+  beneficesCents: number
+}
+
+/** Bénéfices (Σ marge €) par mois sur les `n` derniers mois (le plus ancien d'abord). */
+export function beneficesParMois(pieces: PriceRow[], n = 6, now: Date = new Date()): MonthBucket[] {
+  const buckets: (MonthBucket & { y: number; m: number })[] = []
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    buckets.push({
+      y: d.getFullYear(),
+      m: d.getMonth(),
+      label: d.toLocaleDateString('fr-FR', { month: 'short' }),
+      beneficesCents: 0,
+    })
+  }
+  for (const p of pieces) {
+    if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null && p.sold_at) {
+      const d = new Date(p.sold_at)
+      const b = buckets.find((x) => x.y === d.getFullYear() && x.m === d.getMonth())
+      if (b) b.beneficesCents += p.prix_vente_cents - p.prix_achat_cents
+    }
+  }
+  return buckets.map(({ label, beneficesCents }) => ({ label, beneficesCents }))
+}
+
+export interface CategorieCount {
+  categorie: string
+  count: number
+}
+
+/** Répartition des pièces EN STOCK par catégorie (décroissant). */
+export function repartitionStock(pieces: PriceRow[]): CategorieCount[] {
+  const map = new Map<string, number>()
+  for (const p of pieces) {
+    if (p.statut === 'en_stock' && p.categorie) {
+      map.set(p.categorie, (map.get(p.categorie) ?? 0) + 1)
+    }
+  }
+  return [...map.entries()]
+    .map(([categorie, count]) => ({ categorie, count }))
+    .sort((a, b) => b.count - a.count)
 }

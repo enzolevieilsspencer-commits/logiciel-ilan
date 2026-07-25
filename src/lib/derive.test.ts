@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { computeMargin, computeDashboard, isStale, daysSince, type PriceRow } from './derive'
+import {
+  computeMargin,
+  computeDashboard,
+  isStale,
+  daysSince,
+  beneficesParMois,
+  repartitionStock,
+  type PriceRow,
+} from './derive'
 
 describe('computeMargin', () => {
   it('calcule une marge positive (achat 6,00 € → vente 25,00 €)', () => {
@@ -97,5 +105,38 @@ describe('isStale / daysSince', () => {
   it('au seuil exact, non stagnante (strictement supérieur)', () => {
     const created = new Date('2026-05-26T00:00:00Z').toISOString() // exactement 60 j
     expect(isStale(created, 60, now)).toBe(false)
+  })
+})
+
+describe('beneficesParMois', () => {
+  const now = new Date('2026-07-15T12:00:00Z')
+
+  it('ventile les marges des vendues par mois (n derniers mois)', () => {
+    const pieces: PriceRow[] = [
+      { statut: 'vendue', prix_achat_cents: 600, prix_vente_cents: 1000, sold_at: '2026-07-05T00:00:00Z' }, // juil +400
+      { statut: 'vendue', prix_achat_cents: 200, prix_vente_cents: 500, sold_at: '2026-07-20T00:00:00Z' }, //  juil +300
+      { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 400, sold_at: '2026-06-10T00:00:00Z' }, //  juin +300
+      { statut: 'en_stock', prix_achat_cents: 900, prix_vente_cents: null, sold_at: null }, // ignoré
+    ]
+    const res = beneficesParMois(pieces, 6, now)
+    expect(res).toHaveLength(6)
+    expect(res[res.length - 1].beneficesCents).toBe(700) // juillet
+    expect(res[res.length - 2].beneficesCents).toBe(300) // juin
+    expect(res[0].beneficesCents).toBe(0) // février, rien
+  })
+})
+
+describe('repartitionStock', () => {
+  it('compte les pièces en stock par catégorie, décroissant', () => {
+    const pieces: PriceRow[] = [
+      { statut: 'en_stock', prix_achat_cents: 1, prix_vente_cents: null, sold_at: null, categorie: 'Jean' },
+      { statut: 'en_stock', prix_achat_cents: 1, prix_vente_cents: null, sold_at: null, categorie: 'Jean' },
+      { statut: 'en_stock', prix_achat_cents: 1, prix_vente_cents: null, sold_at: null, categorie: 'Pull' },
+      { statut: 'vendue', prix_achat_cents: 1, prix_vente_cents: 2, sold_at: '2026-07-01T00:00:00Z', categorie: 'Jean' },
+    ]
+    const res = repartitionStock(pieces)
+    expect(res[0]).toEqual({ categorie: 'Jean', count: 2 })
+    expect(res[1]).toEqual({ categorie: 'Pull', count: 1 })
+    expect(res).toHaveLength(2)
   })
 })

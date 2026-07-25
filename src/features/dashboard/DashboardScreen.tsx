@@ -1,6 +1,23 @@
 import { useState } from 'react'
-import { TrendingUp, PiggyBank, Package, ShoppingBag, Plus, ArrowUpRight, type LucideIcon } from 'lucide-react'
-import { computeDashboard, type PriceRow } from '../../lib/derive'
+import {
+  TrendingUp,
+  PiggyBank,
+  Package,
+  ShoppingBag,
+  Plus,
+  ArrowUpRight,
+  BarChart3,
+  Layers,
+  type LucideIcon,
+} from 'lucide-react'
+import {
+  computeDashboard,
+  beneficesParMois,
+  repartitionStock,
+  type PriceRow,
+  type MonthBucket,
+  type CategorieCount,
+} from '../../lib/derive'
 
 type Period = 'mois' | 'annee' | 'total'
 
@@ -45,6 +62,52 @@ function StatCard({ label, value, sub, icon: Icon, valueClass }: StatCardProps) 
   )
 }
 
+function MonthlyBars({ data }: { data: MonthBucket[] }) {
+  const max = Math.max(1, ...data.map((d) => d.beneficesCents))
+  return (
+    <div>
+      <div className="flex h-40 items-end gap-2">
+        {data.map((d, i) => {
+          const h = Math.max((Math.max(d.beneficesCents, 0) / max) * 100, 3)
+          return (
+            <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+              {d.beneficesCents > 0 && (
+                <span className="text-[10px] font-bold text-teal-dark">{Math.round(d.beneficesCents / 100)}</span>
+              )}
+              <div className="w-full rounded-t-md bg-gradient-to-t from-teal to-teal/70" style={{ height: `${h}%` }} />
+            </div>
+          )
+        })}
+      </div>
+      <div className="mt-1.5 flex gap-2">
+        {data.map((d, i) => (
+          <span key={i} className="flex-1 text-center text-xs capitalize text-muted">
+            {d.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CategoryBars({ data }: { data: CategorieCount[] }) {
+  const max = Math.max(1, ...data.map((d) => d.count))
+  if (data.length === 0) return <p className="text-sm text-muted">Rien en stock pour l'instant.</p>
+  return (
+    <div className="flex flex-col gap-2.5">
+      {data.map((d) => (
+        <div key={d.categorie} className="flex items-center gap-3">
+          <span className="w-24 shrink-0 truncate text-sm text-muted">{d.categorie}</span>
+          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-app">
+            <div className="h-full rounded-full bg-teal" style={{ width: `${(d.count / max) * 100}%` }} />
+          </div>
+          <span className="w-5 text-right text-sm font-semibold text-ink">{d.count}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 interface DashboardScreenProps {
   rows: PriceRow[]
   empty: boolean
@@ -58,6 +121,8 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
   const data = computeDashboard(rows, boundaryISO(period))
   const nbEnStock = rows.filter((r) => r.statut === 'en_stock').length
   const nbVendues = rows.filter((r) => r.statut === 'vendue').length
+  const parMois = beneficesParMois(rows)
+  const repartition = repartitionStock(rows)
 
   return (
     <div className="mx-auto w-full max-w-5xl p-5 md:p-8">
@@ -152,6 +217,26 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
             />
             <StatCard label="Pièces en stock" value={String(nbEnStock)} sub="à vendre" icon={Package} />
             <StatCard label="Ventes" value={String(nbVendues)} sub="au total" icon={ShoppingBag} />
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <BarChart3 size={18} className="text-teal-dark" />
+                <h2 className="font-bold text-ink">Bénéfices par mois</h2>
+                <span className="ml-auto text-xs text-muted">6 derniers mois · €</span>
+              </div>
+              <MonthlyBars data={parMois} />
+            </div>
+
+            <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <Layers size={18} className="text-teal-dark" />
+                <h2 className="font-bold text-ink">Répartition du stock</h2>
+                <span className="ml-auto text-xs text-muted">par catégorie</span>
+              </div>
+              <CategoryBars data={repartition} />
+            </div>
           </div>
         </>
       )}
