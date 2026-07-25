@@ -15,8 +15,8 @@ export function Sidebar({ active, onChange, onAdd, onLogout }: SidebarProps) {
       <div className="flex items-center gap-2.5 px-2 py-2">
         <img src="/pwa-192x192.png" alt="" className="h-9 w-9 rounded-xl" />
         <span className="font-bold leading-tight text-teal-dark">
-          Ilan
-          <span className="block text-xs font-medium text-muted">Stock &amp; Marge</span>
+          Vendly
+          <span className="block text-xs font-medium text-muted">Stock &amp; marge</span>
         </span>
       </div>
 

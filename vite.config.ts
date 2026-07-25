@@ -11,8 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Ilan · Stock & Marge',
-        short_name: 'Stock&Marge',
+        name: 'Vendly',
+        short_name: 'Vendly',
         description: 'Gère ton stock Vinted et ta marge en un coup d’œil.',
         lang: 'fr',
         theme_color: '#09B1BA',

@@ -64,7 +64,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink md:text-3xl">Tableau de bord</h1>
-          <p className="text-sm text-muted">Salut Ilan — voilà où tu en es. 👋</p>
+          <p className="text-sm text-muted">Voilà où en est ton business aujourd'hui.</p>
         </div>
         <button
           type="button"

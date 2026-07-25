@@ -3,7 +3,7 @@ import { Mail, Lock, LogIn } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 /**
- * Écran de connexion (mono-utilisateur : Ilan).
+ * Écran de connexion (un seul compte en v1).
  * Email + mot de passe via Supabase. Pas d'inscription ni de mot de passe oublié en v1.
  */
 export function LoginScreen() {
@@ -33,7 +33,7 @@ export function LoginScreen() {
         <div className="flex flex-col items-center gap-3 text-center">
           <img src="/pwa-192x192.png" alt="" className="h-16 w-16 rounded-2xl shadow-md" />
           <div>
-            <h1 className="text-xl font-bold text-teal-dark">Ilan · Stock &amp; Marge</h1>
+            <h1 className="text-xl font-bold text-teal-dark">Vendly</h1>
             <p className="mt-1 text-sm text-muted">Connecte-toi pour retrouver ton stock.</p>
           </div>
         </div>
