@@ -1,3 +1,4 @@
+import { Shirt } from 'lucide-react'
 import { computeMargin, isStale } from '../../lib/derive'
 import type { Piece } from './types'
 
@@ -29,7 +30,7 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
         {photoUrl ? (
           <img src={photoUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="text-2xl">👕</span>
+          <Shirt size={22} className="text-teal-dark/60" />
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -52,9 +53,7 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
           <span className="rounded-full bg-app px-2.5 py-1 text-xs font-semibold text-teal-dark">
             en stock
           </span>
-          {stagnante && (
-            <span className="text-xs font-semibold text-amber">💤 à brader</span>
-          )}
+          {stagnante && <span className="text-xs font-semibold text-amber">à brader</span>}
         </div>
       )}
     </button>

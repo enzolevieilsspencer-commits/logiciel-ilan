@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { TabBar, type TabKey } from '../components/ui/TabBar'
+import { TabBar } from '../components/ui/TabBar'
+import { Sidebar } from '../components/ui/Sidebar'
 import { Fab } from '../components/ui/Fab'
+import type { TabKey } from '../components/ui/nav'
 import { usePieces } from '../features/pieces/usePieces'
 import { StockScreen } from '../features/pieces/StockScreen'
 import { HistoryScreen } from '../features/pieces/HistoryScreen'
@@ -12,7 +15,7 @@ import { DashboardScreen } from '../features/dashboard/DashboardScreen'
 import type { Piece } from '../features/pieces/types'
 
 export function AppShell() {
-  const [tab, setTab] = useState<TabKey>('stock')
+  const [tab, setTab] = useState<TabKey>('accueil')
   const [adding, setAdding] = useState(false)
   const [selected, setSelected] = useState<Piece | null>(null)
   const { pieces, urls, loading, error, refresh } = usePieces('en_stock')
@@ -26,7 +29,6 @@ export function AppShell() {
     dashboard.refresh()
   }
 
-  // Overlay d'ajout (ouvert par le FAB).
   if (adding) {
     return (
       <AddPieceScreen
@@ -39,7 +41,6 @@ export function AppShell() {
     )
   }
 
-  // Fiche pièce (consulter / modifier / supprimer).
   if (selected) {
     return (
       <PieceDetailScreen
@@ -60,42 +61,52 @@ export function AppShell() {
   const showFab = tab === 'accueil' || tab === 'stock'
 
   return (
-    <div className="min-h-screen bg-app pb-20">
-      {tab === 'accueil' && (
-        <DashboardScreen
-          rows={dashboard.rows}
-          empty={dashboard.empty}
-          loading={dashboard.loading}
-          error={dashboard.error}
-        />
-      )}
+    <div className="min-h-screen bg-app md:flex">
+      <Sidebar
+        active={tab}
+        onChange={setTab}
+        onAdd={() => setAdding(true)}
+        onLogout={() => supabase.auth.signOut()}
+      />
 
-      {tab === 'stock' && (
-        <StockScreen pieces={pieces} urls={urls} loading={loading} error={error} onSelect={setSelected} />
-      )}
+      <main className="min-h-screen flex-1 pb-20 md:pb-0">
+        {tab === 'accueil' && (
+          <DashboardScreen
+            rows={dashboard.rows}
+            empty={dashboard.empty}
+            loading={dashboard.loading}
+            error={dashboard.error}
+            onAdd={() => setAdding(true)}
+          />
+        )}
 
-      {tab === 'stats' && (
-        <HistoryScreen
-          pieces={history.pieces}
-          urls={history.urls}
-          loading={history.loading}
-          error={history.error}
-          onSelect={setSelected}
-        />
-      )}
+        {tab === 'stock' && (
+          <StockScreen pieces={pieces} urls={urls} loading={loading} error={error} onSelect={setSelected} />
+        )}
 
-      {tab === 'reglages' && (
-        <div className="mx-auto flex max-w-md flex-col gap-4 p-6 pt-16">
-          <h1 className="text-xl font-bold text-teal-dark">Réglages</h1>
-          <button
-            type="button"
-            onClick={() => supabase.auth.signOut()}
-            className="self-start rounded-[var(--radius-md)] bg-white px-4 py-2 text-sm font-semibold text-teal-dark shadow"
-          >
-            Se déconnecter
-          </button>
-        </div>
-      )}
+        {tab === 'stats' && (
+          <HistoryScreen
+            pieces={history.pieces}
+            urls={history.urls}
+            loading={history.loading}
+            error={history.error}
+            onSelect={setSelected}
+          />
+        )}
+
+        {tab === 'reglages' && (
+          <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6 pt-10">
+            <h1 className="text-xl font-bold text-teal-dark">Réglages</h1>
+            <button
+              type="button"
+              onClick={() => supabase.auth.signOut()}
+              className="flex items-center gap-2 self-start rounded-[var(--radius-md)] bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark shadow"
+            >
+              <LogOut size={16} /> Se déconnecter
+            </button>
+          </div>
+        )}
+      </main>
 
       {showFab && <Fab onClick={() => setAdding(true)} />}
       <TabBar active={tab} onChange={setTab} />
