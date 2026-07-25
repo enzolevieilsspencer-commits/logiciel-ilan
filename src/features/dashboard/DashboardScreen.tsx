@@ -8,15 +8,17 @@ import {
   ArrowUpRight,
   BarChart3,
   Layers,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react'
 import {
   computeDashboard,
-  beneficesParMois,
+  beneficesSeries,
   repartitionStock,
   type PriceRow,
   type MonthBucket,
   type CategorieCount,
+  type Timeframe,
 } from '../../lib/derive'
 
 type Period = 'mois' | 'annee' | 'total'
@@ -38,6 +40,21 @@ function euros(cents: number): string {
   const abs = (Math.abs(cents) / 100).toFixed(2).replace('.', ',')
   return `${cents < 0 ? '−' : ''}${abs} €`
 }
+
+interface TimeframeOption {
+  key: string
+  label: string
+  unit: Timeframe
+  count: number
+  legend: string
+}
+
+const TIMEFRAMES: TimeframeOption[] = [
+  { key: '7j', label: '7 jours', unit: 'day', count: 7, legend: '7 derniers jours · €' },
+  { key: '4s', label: '4 semaines', unit: 'week', count: 4, legend: '4 dernières semaines · €' },
+  { key: '6m', label: '6 mois', unit: 'month', count: 6, legend: '6 derniers mois · €' },
+  { key: '12m', label: '12 mois', unit: 'month', count: 12, legend: '12 derniers mois · €' },
+]
 
 interface StatCardProps {
   label: string
@@ -80,7 +97,8 @@ function smoothPath(points: { x: number; y: number }[]): string {
   return d
 }
 
-function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
+function BenefitsChart({ data }: { data: MonthBucket[] }) {
+  const [hover, setHover] = useState<number | null>(null)
   const W = 100
   const H = 40
   const values = data.map((d) => Math.max(d.beneficesCents, 0))
@@ -93,9 +111,21 @@ function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
   const line = smoothPath(points)
   const area = line ? `${line} L ${points[n - 1].x} ${H} L ${points[0].x} ${H} Z` : ''
 
+  function locate(e: React.PointerEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const rel = (e.clientX - rect.left) / rect.width
+    const idx = Math.min(n - 1, Math.max(0, Math.round(rel * (n - 1))))
+    setHover(idx)
+  }
+
   return (
     <div>
-      <div className="relative h-40 w-full">
+      <div
+        className="relative h-40 w-full touch-none"
+        onPointerMove={locate}
+        onPointerDown={locate}
+        onPointerLeave={() => setHover(null)}
+      >
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full overflow-visible">
           <defs>
             <linearGradient id="benefFill" x1="0" y1="0" x2="0" y2="1">
@@ -104,6 +134,19 @@ function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
             </linearGradient>
           </defs>
           {area && <path d={area} fill="url(#benefFill)" />}
+          {hover !== null && (
+            <line
+              x1={points[hover].x}
+              y1="0"
+              x2={points[hover].x}
+              y2={H}
+              stroke="#09b1ba"
+              strokeWidth={1}
+              strokeDasharray="2 2"
+              strokeOpacity={0.4}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
           <path
             d={line}
             fill="none"
@@ -117,16 +160,32 @@ function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
         {points.map((p, i) => (
           <span
             key={i}
-            className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal ring-2 ring-surface"
+            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal ring-2 ring-surface transition-all ${
+              i === hover ? 'h-3.5 w-3.5' : 'h-2.5 w-2.5'
+            }`}
             style={{ left: `${p.x}%`, top: `${(p.y / H) * 100}%` }}
           />
         ))}
+        {hover !== null && (
+          <div
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-[var(--radius-sm)] bg-surface px-2.5 py-1.5 text-center shadow-lg ring-1 ring-black/5"
+            style={{ left: `${points[hover].x}%`, top: `calc(${(points[hover].y / H) * 100}% - 10px)` }}
+          >
+            <p className="text-[10px] font-medium capitalize text-muted">{data[hover].label}</p>
+            <p className="text-sm font-bold text-teal-dark">{euros(data[hover].beneficesCents)}</p>
+          </div>
+        )}
       </div>
       <div className="mt-1.5 flex gap-2">
         {data.map((d, i) => (
-          <span key={i} className="flex-1 text-center text-xs capitalize text-muted">
+          <button
+            key={i}
+            type="button"
+            onClick={() => setHover(i)}
+            className={`flex-1 text-center text-xs capitalize ${i === hover ? 'font-semibold text-teal-dark' : 'text-muted'}`}
+          >
             {d.label}
-          </span>
+          </button>
         ))}
       </div>
     </div>
@@ -161,10 +220,12 @@ interface DashboardScreenProps {
 
 export function DashboardScreen({ rows, empty, loading, error, onAdd }: DashboardScreenProps) {
   const [period, setPeriod] = useState<Period>('total')
+  const [tf, setTf] = useState<string>('6m')
   const data = computeDashboard(rows, boundaryISO(period))
   const nbEnStock = rows.filter((r) => r.statut === 'en_stock').length
   const nbVendues = rows.filter((r) => r.statut === 'vendue').length
-  const parMois = beneficesParMois(rows)
+  const timeframe = TIMEFRAMES.find((t) => t.key === tf) ?? TIMEFRAMES[2]
+  const series = beneficesSeries(rows, timeframe.unit, timeframe.count)
   const repartition = repartitionStock(rows)
 
   return (
@@ -266,10 +327,28 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
             <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
                 <BarChart3 size={18} className="text-teal-dark" />
-                <h2 className="font-bold text-ink">Bénéfices par mois</h2>
-                <span className="ml-auto text-xs text-muted">6 derniers mois · €</span>
+                <h2 className="font-bold text-ink">Bénéfices</h2>
+                <div className="relative ml-auto">
+                  <select
+                    value={tf}
+                    onChange={(e) => setTf(e.target.value)}
+                    aria-label="Période du graphique"
+                    className="appearance-none rounded-full bg-app py-1.5 pl-3.5 pr-8 text-xs font-semibold text-ink"
+                  >
+                    {TIMEFRAMES.map((t) => (
+                      <option key={t.key} value={t.key}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    size={14}
+                    className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted"
+                  />
+                </div>
               </div>
-              <BenefitsLineChart data={parMois} />
+              <BenefitsChart data={series} />
+              <p className="mt-2 text-center text-[11px] text-muted">{timeframe.legend}</p>
             </div>
 
             <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">

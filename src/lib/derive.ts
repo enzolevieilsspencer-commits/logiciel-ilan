@@ -108,6 +108,54 @@ export function beneficesParMois(pieces: PriceRow[], n = 6, now: Date = new Date
   return buckets.map(({ label, beneficesCents }) => ({ label, beneficesCents }))
 }
 
+export type Timeframe = 'day' | 'week' | 'month'
+
+function bucketStart(unit: Timeframe, d: Date): Date {
+  if (unit === 'day') return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  if (unit === 'month') return new Date(d.getFullYear(), d.getMonth(), 1)
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const dow = (x.getDay() + 6) % 7 // lundi = 0
+  x.setDate(x.getDate() - dow)
+  return x
+}
+
+function addUnits(unit: Timeframe, d: Date, k: number): Date {
+  const x = new Date(d)
+  if (unit === 'day') x.setDate(x.getDate() + k)
+  else if (unit === 'week') x.setDate(x.getDate() + 7 * k)
+  else x.setMonth(x.getMonth() + k)
+  return x
+}
+
+function bucketLabel(unit: Timeframe, d: Date): string {
+  if (unit === 'month') return d.toLocaleDateString('fr-FR', { month: 'short' })
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+}
+
+/** Bénéfices (Σ marge €) par bucket (jour/semaine/mois), sur `count` derniers buckets. */
+export function beneficesSeries(
+  pieces: PriceRow[],
+  unit: Timeframe,
+  count: number,
+  now: Date = new Date(),
+): MonthBucket[] {
+  const cur = bucketStart(unit, now)
+  const buckets: (MonthBucket & { start: number; end: number })[] = []
+  for (let i = count - 1; i >= 0; i--) {
+    const start = addUnits(unit, cur, -i)
+    const end = addUnits(unit, start, 1)
+    buckets.push({ start: start.getTime(), end: end.getTime(), label: bucketLabel(unit, start), beneficesCents: 0 })
+  }
+  for (const p of pieces) {
+    if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null && p.sold_at) {
+      const t = new Date(p.sold_at).getTime()
+      const b = buckets.find((x) => t >= x.start && t < x.end)
+      if (b) b.beneficesCents += p.prix_vente_cents - p.prix_achat_cents
+    }
+  }
+  return buckets.map(({ label, beneficesCents }) => ({ label, beneficesCents }))
+}
+
 export interface CategorieCount {
   categorie: string
   count: number

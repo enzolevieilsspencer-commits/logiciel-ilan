@@ -5,6 +5,7 @@ import {
   isStale,
   daysSince,
   beneficesParMois,
+  beneficesSeries,
   repartitionStock,
   type PriceRow,
 } from './derive'
@@ -123,6 +124,34 @@ describe('beneficesParMois', () => {
     expect(res[res.length - 1].beneficesCents).toBe(700) // juillet
     expect(res[res.length - 2].beneficesCents).toBe(300) // juin
     expect(res[0].beneficesCents).toBe(0) // février, rien
+  })
+})
+
+describe('beneficesSeries', () => {
+  const now = new Date('2026-07-15T12:00:00Z')
+
+  it('regroupe par jour sur les N derniers jours', () => {
+    const pieces: PriceRow[] = [
+      { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 600, sold_at: '2026-07-15T09:00:00Z', categorie: null }, // aujourd'hui : +500
+      { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 400, sold_at: '2026-07-13T09:00:00Z', categorie: null }, // il y a 2j : +300
+      { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 300, sold_at: '2026-06-01T09:00:00Z', categorie: null }, // hors fenêtre
+    ]
+    const res = beneficesSeries(pieces, 'day', 7, now)
+    expect(res).toHaveLength(7)
+    expect(res[res.length - 1].beneficesCents).toBe(500) // aujourd'hui
+    expect(res[res.length - 3].beneficesCents).toBe(300) // il y a 2 jours
+    expect(res[0].beneficesCents).toBe(0)
+  })
+
+  it('regroupe par mois (le plus ancien en premier)', () => {
+    const pieces: PriceRow[] = [
+      { statut: 'vendue', prix_achat_cents: 100, prix_vente_cents: 900, sold_at: '2026-07-10T00:00:00Z', categorie: null }, // +800
+      { statut: 'en_stock', prix_achat_cents: 500, prix_vente_cents: null, sold_at: null, categorie: null }, // ignoré
+    ]
+    const res = beneficesSeries(pieces, 'month', 6, now)
+    expect(res).toHaveLength(6)
+    expect(res[res.length - 1].beneficesCents).toBe(800)
+    expect(res[0].beneficesCents).toBe(0)
   })
 })
 
