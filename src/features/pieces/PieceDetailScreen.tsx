@@ -154,21 +154,30 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   }
 
   return (
-    <main className="min-h-screen bg-app p-4 text-ink md:p-8">
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center gap-1.5 text-sm font-semibold text-muted"
-          >
-            <ArrowLeft size={18} /> Retour
-          </button>
-          <h1 className="text-lg font-bold text-teal-dark">Fiche pièce</h1>
-          <span className="w-16" />
-        </div>
+    <main className="fixed inset-0 z-40 flex flex-col bg-app text-ink">
+      {/* Header fixe */}
+      <header
+        className="flex items-center justify-between gap-2 border-b border-black/5 bg-surface px-4 py-3"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+      >
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-sm font-semibold text-muted"
+        >
+          <ArrowLeft size={18} /> Retour
+        </button>
+        <h1 className="text-base font-bold text-teal-dark">Fiche pièce</h1>
+        <span className="w-16" />
+      </header>
 
-        <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-surface shadow-sm">
+      {/* Corps scrollable */}
+      <div
+        className="flex-1 overflow-y-auto overscroll-contain px-4 py-4"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+      >
+        <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
+          <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-surface shadow-sm">
           {photoSrc ? (
             <img src={photoSrc} alt="" className="h-full w-full object-cover" />
           ) : (
@@ -300,6 +309,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </main>

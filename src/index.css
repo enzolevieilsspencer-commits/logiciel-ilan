@@ -42,12 +42,15 @@ html,
 body,
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 body {
   margin: 0;
   background: var(--color-app);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Ressenti « app » : pas de rebond élastique du scroll sur mobile. */
+  overscroll-behavior: none;
 }
 
 /* ─────────────────────────────────────────────────────────────
