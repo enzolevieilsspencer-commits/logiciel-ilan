@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { computeDashboard, type DashboardData, type PriceRow } from '../../lib/derive'
+import type { PriceRow } from '../../lib/derive'
 
 /**
- * Récupère les pièces (tous statuts, RLS filtre par utilisateur) et calcule
- * les indicateurs du tableau de bord (dérivés, jamais stockés — AD-2).
+ * Récupère les lignes de prix des pièces (tous statuts, RLS filtre par utilisateur).
+ * Le calcul des indicateurs (avec période) se fait dans le composant, sans refetch.
  */
 export function useDashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
+  const [rows, setRows] = useState<PriceRow[]>([])
   const [empty, setEmpty] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,17 +15,17 @@ export function useDashboard() {
   const refresh = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const { data: rows, error: e } = await supabase
+    const { data, error: e } = await supabase
       .from('piece')
-      .select('prix_achat_cents, prix_vente_cents, statut')
+      .select('prix_achat_cents, prix_vente_cents, statut, sold_at')
     if (e) {
       setError('Impossible de charger le tableau de bord.')
       setLoading(false)
       return
     }
-    const list = (rows ?? []) as PriceRow[]
+    const list = (data ?? []) as PriceRow[]
     setEmpty(list.length === 0)
-    setData(computeDashboard(list))
+    setRows(list)
     setLoading(false)
   }, [])
 
@@ -33,5 +33,5 @@ export function useDashboard() {
     refresh()
   }, [refresh])
 
-  return { data, empty, loading, error, refresh }
+  return { rows, empty, loading, error, refresh }
 }

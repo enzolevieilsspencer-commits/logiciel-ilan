@@ -1,10 +1,19 @@
-import type { DashboardData } from '../../lib/derive'
+import { useState } from 'react'
+import { computeDashboard, type PriceRow } from '../../lib/derive'
 
-interface DashboardScreenProps {
-  data: DashboardData | null
-  empty: boolean
-  loading: boolean
-  error: string | null
+type Period = 'mois' | 'annee' | 'total'
+
+const PERIODS: { key: Period; label: string }[] = [
+  { key: 'mois', label: 'Mois' },
+  { key: 'annee', label: 'Année' },
+  { key: 'total', label: 'Total' },
+]
+
+function boundaryISO(period: Period): string | null {
+  const now = new Date()
+  if (period === 'mois') return new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  if (period === 'annee') return new Date(now.getFullYear(), 0, 1).toISOString()
+  return null
 }
 
 function euros(cents: number): string {
@@ -12,14 +21,24 @@ function euros(cents: number): string {
   return `${cents < 0 ? '−' : ''}${abs} €`
 }
 
-export function DashboardScreen({ data, empty, loading, error }: DashboardScreenProps) {
+interface DashboardScreenProps {
+  rows: PriceRow[]
+  empty: boolean
+  loading: boolean
+  error: string | null
+}
+
+export function DashboardScreen({ rows, empty, loading, error }: DashboardScreenProps) {
+  const [period, setPeriod] = useState<Period>('total')
+  const data = computeDashboard(rows, boundaryISO(period))
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4 p-4 pt-8">
       <h1 className="px-1 text-2xl font-bold text-teal-dark">Salut Ilan 👋</h1>
 
       {loading && (
         <>
-          <div className="h-28 animate-pulse rounded-[var(--radius-card)] bg-white/70" />
+          <div className="h-32 animate-pulse rounded-[var(--radius-card)] bg-white/70" />
           <div className="h-20 animate-pulse rounded-[var(--radius-card)] bg-white/70" />
         </>
       )}
@@ -34,13 +53,33 @@ export function DashboardScreen({ data, empty, loading, error }: DashboardScreen
         </div>
       )}
 
-      {!loading && !error && !empty && data && (
+      {!loading && !error && !empty && (
         <>
-          {/* Carte héro : Bénéfices + Marge moyenne accolée */}
+          {/* Carte héro : Bénéfices + Marge moyenne + sélecteur de période */}
           <div className="rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-teal-dark p-5 text-white shadow-lg">
-            <p className="text-sm opacity-85">Bénéfices</p>
-            <div className="mt-1 flex items-end justify-between gap-3">
-              <p className="text-3xl font-extrabold">{euros(data.beneficesCents)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {PERIODS.map((p) => {
+                const active = p.key === period
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setPeriod(p.key)}
+                    aria-pressed={active}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      active ? 'bg-white text-teal-dark' : 'bg-white/20 text-white'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="mt-3 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-sm opacity-85">Bénéfices</p>
+                <p className="text-3xl font-extrabold">{euros(data.beneficesCents)}</p>
+              </div>
               <p className="text-right text-sm">
                 <span className="block opacity-85">Marge moyenne</span>
                 <span className="text-lg font-bold">
@@ -50,7 +89,7 @@ export function DashboardScreen({ data, empty, loading, error }: DashboardScreen
             </div>
           </div>
 
-          {/* Argent dormant */}
+          {/* Argent dormant (non affecté par la période) */}
           <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
             <p className="text-sm text-muted">😴 Argent qui dort en stock</p>
             <p className="mt-1 text-2xl font-extrabold text-amber">{euros(data.argentDormantCents)}</p>

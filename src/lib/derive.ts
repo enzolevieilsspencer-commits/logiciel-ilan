@@ -25,6 +25,7 @@ export interface PriceRow {
   statut: string
   prix_achat_cents: number | null
   prix_vente_cents: number | null
+  sold_at: string | null
 }
 
 export interface DashboardData {
@@ -36,16 +37,23 @@ export interface DashboardData {
   argentDormantCents: number
 }
 
-/** Agrège les indicateurs du tableau de bord. DÉRIVÉ, jamais stocké (AD-2). */
-export function computeDashboard(pieces: PriceRow[]): DashboardData {
+/**
+ * Agrège les indicateurs du tableau de bord. DÉRIVÉ, jamais stocké (AD-2).
+ * `soldAfterISO` (optionnel) borne les VENTES prises en compte pour bénéfices & marge moyenne
+ * (une vente compte si `sold_at >= soldAfterISO`) ; l'argent dormant n'est jamais borné.
+ */
+export function computeDashboard(pieces: PriceRow[], soldAfterISO: string | null = null): DashboardData {
   let beneficesCents = 0
   let sommeAchatVendues = 0
   let argentDormantCents = 0
 
   for (const p of pieces) {
     if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null) {
-      beneficesCents += p.prix_vente_cents - p.prix_achat_cents
-      sommeAchatVendues += p.prix_achat_cents
+      const dansPeriode = p.sold_at != null && (soldAfterISO === null || p.sold_at >= soldAfterISO)
+      if (dansPeriode) {
+        beneficesCents += p.prix_vente_cents - p.prix_achat_cents
+        sommeAchatVendues += p.prix_achat_cents
+      }
     } else if (p.statut === 'en_stock' && p.prix_achat_cents != null) {
       argentDormantCents += p.prix_achat_cents
     }

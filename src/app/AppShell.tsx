@@ -63,7 +63,7 @@ export function AppShell() {
     <div className="min-h-screen bg-app pb-20">
       {tab === 'accueil' && (
         <DashboardScreen
-          data={dashboard.data}
+          rows={dashboard.rows}
           empty={dashboard.empty}
           loading={dashboard.loading}
           error={dashboard.error}

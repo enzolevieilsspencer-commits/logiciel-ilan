@@ -73,6 +73,6 @@ development_status:
   epic-4: in-progress
   4-1-tableau-de-bord-benefices-marge-moyenne-argent-dormant: review
   4-2-historique-des-ventes: review
-  4-3-benefices-par-periode: backlog
+  4-3-benefices-par-periode: review
   4-4-alerte-pieces-qui-stagnent: backlog
   epic-4-retrospective: optional
