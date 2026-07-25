@@ -49,3 +49,178 @@ body {
   background: var(--color-app);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Splash screen (version mobile / PWA)
+   Logo + « Appuyer pour continuer » avec effets de lumière.
+   ───────────────────────────────────────────────────────────── */
+.splash {
+  background:
+    radial-gradient(120% 90% at 50% 12%, #0fc5cf 0%, #09b1ba 32%, #007782 68%, #004a52 100%);
+  animation: splash-in 0.5s ease-out both;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.splash--leaving {
+  animation: splash-out 0.5s ease-in forwards;
+}
+
+@keyframes splash-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes splash-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+/* Halos de lumière ambiants qui dérivent lentement en fond. */
+.splash-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.splash-glow--1 {
+  top: -12%;
+  left: -18%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent 70%);
+  animation: splash-drift 9s ease-in-out infinite alternate;
+}
+
+.splash-glow--2 {
+  right: -22%;
+  bottom: -14%;
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(circle, rgba(79, 211, 218, 0.85), transparent 70%);
+  animation: splash-drift 11s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes splash-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(6%, 8%, 0) scale(1.15);
+  }
+}
+
+/* Logo : légère respiration verticale. */
+.splash-logo {
+  animation: splash-float 4s ease-in-out infinite;
+}
+
+@keyframes splash-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Halo lumineux pulsé derrière le logo. */
+.splash-halo {
+  position: absolute;
+  inset: -32%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 68%);
+  filter: blur(22px);
+  animation: splash-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes splash-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+
+/* Titre : apparition retardée en douceur. */
+.splash-title {
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+  animation: splash-rise 0.6s ease-out 0.15s both;
+}
+
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CTA : texte clair avec balayage lumineux + pulsation d'opacité. */
+.splash-cta {
+  color: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 1) 45%,
+    rgba(255, 255, 255, 0.55) 90%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    splash-shimmer 2.4s linear infinite,
+    splash-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes splash-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+@keyframes splash-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Respecte les préférences d'accessibilité : coupe les animations. */
+@media (prefers-reduced-motion: reduce) {
+  .splash,
+  .splash-glow,
+  .splash-logo,
+  .splash-halo,
+  .splash-title,
+  .splash-cta {
+    animation: none !important;
+  }
+}
