@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, centsToEuros, eurosToCents, type Piece } from './types'
 import { uploadPhoto, deletePhoto } from './storage'
+import { computeMargin } from '../../lib/derive'
 import { updatePiece, deletePiece, sellPiece, restockPiece, type PiecePatch } from './updatePiece'
 
 interface PieceDetailScreenProps {
@@ -142,6 +143,17 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
     'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
   const photoSrc = previewUrl ?? signedUrl
 
+  // Marge dérivée en live depuis les valeurs courantes du formulaire (jamais stockée, AD-2).
+  const margin = computeMargin(eurosToCents(prixAchat), eurosToCents(prixVente))
+  let margeLabel: string | null = null
+  let margePositive = true
+  if (margin) {
+    margePositive = margin.margeCents >= 0
+    const eurosAbs = (Math.abs(margin.margeCents) / 100).toFixed(2).replace('.', ',')
+    const pctPart = margin.pct === null ? '' : ` · ${Math.round(margin.pct)} %`
+    margeLabel = `${margePositive ? '+' : '−'}${eurosAbs} €${pctPart}`
+  }
+
   return (
     <main className="min-h-screen bg-app text-ink p-5">
       <div className="mx-auto flex max-w-md flex-col gap-5">
@@ -160,6 +172,15 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
             <span className="text-5xl">👕</span>
           )}
         </div>
+
+        {margeLabel && (
+          <div className="rounded-[var(--radius-card)] bg-white p-4 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Marge</p>
+            <p className={`text-3xl font-extrabold ${margePositive ? 'text-green' : 'text-amber'}`}>
+              {margeLabel}
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSave} className="flex flex-col gap-5">
           <label className="flex flex-col gap-2 text-sm font-semibold text-muted">
