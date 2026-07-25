@@ -62,23 +62,57 @@ function StatCard({ label, value, sub, icon: Icon, valueClass }: StatCardProps) 
   )
 }
 
-function MonthlyBars({ data }: { data: MonthBucket[] }) {
-  const max = Math.max(1, ...data.map((d) => d.beneficesCents))
+/** Courbe lissée (Catmull-Rom → bézier) reliant une série de points. */
+function smoothPath(points: { x: number; y: number }[]): string {
+  if (points.length < 2) return ''
+  let d = `M ${points[0].x} ${points[0].y}`
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] ?? points[i]
+    const p1 = points[i]
+    const p2 = points[i + 1]
+    const p3 = points[i + 2] ?? p2
+    const cp1x = p1.x + (p2.x - p0.x) / 6
+    const cp1y = p1.y + (p2.y - p0.y) / 6
+    const cp2x = p2.x - (p3.x - p1.x) / 6
+    const cp2y = p2.y - (p3.y - p1.y) / 6
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`
+  }
+  return d
+}
+
+function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
+  const W = 100
+  const H = 40
+  const values = data.map((d) => Math.max(d.beneficesCents, 0))
+  const max = Math.max(1, ...values)
+  const n = data.length
+  const points = values.map((v, i) => ({
+    x: n === 1 ? W / 2 : (i / (n - 1)) * W,
+    y: H - 3 - (v / max) * (H - 6),
+  }))
+  const line = smoothPath(points)
+  const area = line ? `${line} L ${points[n - 1].x} ${H} L ${points[0].x} ${H} Z` : ''
+
   return (
     <div>
-      <div className="flex h-40 items-end gap-2">
-        {data.map((d, i) => {
-          const h = Math.max((Math.max(d.beneficesCents, 0) / max) * 100, 3)
-          return (
-            <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
-              {d.beneficesCents > 0 && (
-                <span className="text-[10px] font-bold text-teal-dark">{Math.round(d.beneficesCents / 100)}</span>
-              )}
-              <div className="w-full rounded-t-md bg-gradient-to-t from-teal to-teal/70" style={{ height: `${h}%` }} />
-            </div>
-          )
-        })}
-      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-40 w-full overflow-visible">
+        <defs>
+          <linearGradient id="benefFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#09b1ba" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#09b1ba" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {area && <path d={area} fill="url(#benefFill)" />}
+        <path
+          d={line}
+          fill="none"
+          stroke="#09b1ba"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
       <div className="mt-1.5 flex gap-2">
         {data.map((d, i) => (
           <span key={i} className="flex-1 text-center text-xs capitalize text-muted">
@@ -226,7 +260,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
                 <h2 className="font-bold text-ink">Bénéfices par mois</h2>
                 <span className="ml-auto text-xs text-muted">6 derniers mois · €</span>
               </div>
-              <MonthlyBars data={parMois} />
+              <BenefitsLineChart data={parMois} />
             </div>
 
             <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
