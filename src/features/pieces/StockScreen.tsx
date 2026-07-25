@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { PieceRow } from './PieceRow'
+import { FilterPanel } from './FilterPanel'
+import { EMPTY_FILTERS, activeFilterCount, applyFilters, type PieceFilters } from './filters'
 import type { Piece } from './types'
 
 interface StockScreenProps {
@@ -10,9 +13,30 @@ interface StockScreenProps {
 }
 
 export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScreenProps) {
+  const [filters, setFilters] = useState<PieceFilters>(EMPTY_FILTERS)
+  const [showFilters, setShowFilters] = useState(false)
+
+  const count = activeFilterCount(filters)
+  const filtered = applyFilters(pieces, filters)
+  const hasStock = !loading && !error && pieces.length > 0
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 p-4">
-      <h1 className="px-1 text-xl font-bold text-teal-dark">Mon stock</h1>
+      <div className="flex items-center justify-between px-1">
+        <h1 className="text-xl font-bold text-teal-dark">Mon stock</h1>
+        {hasStock && (
+          <button
+            type="button"
+            onClick={() => setShowFilters(true)}
+            className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-teal-dark shadow-sm"
+          >
+            🔎 Filtrer
+            {count > 0 && (
+              <span className="rounded-full bg-teal px-1.5 text-xs font-bold text-white">{count}</span>
+            )}
+          </button>
+        )}
+      </div>
 
       {loading && (
         <div className="flex flex-col gap-3">
@@ -32,9 +56,23 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
         </div>
       )}
 
-      {!loading && !error && pieces.length > 0 && (
+      {hasStock && filtered.length === 0 && (
+        <div className="mt-10 flex flex-col items-center gap-2 text-center">
+          <span className="text-4xl">🔍</span>
+          <p className="font-semibold text-ink">Aucune pièce ne correspond à tes filtres</p>
+          <button
+            type="button"
+            onClick={() => setFilters(EMPTY_FILTERS)}
+            className="text-sm font-semibold text-teal-dark underline"
+          >
+            Effacer les filtres
+          </button>
+        </div>
+      )}
+
+      {hasStock && filtered.length > 0 && (
         <div className="flex flex-col gap-2.5">
-          {pieces.map((piece) => (
+          {filtered.map((piece) => (
             <PieceRow
               key={piece.id}
               piece={piece}
@@ -43,6 +81,15 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
             />
           ))}
         </div>
+      )}
+
+      {showFilters && (
+        <FilterPanel
+          pieces={pieces}
+          filters={filters}
+          onChange={setFilters}
+          onClose={() => setShowFilters(false)}
+        />
       )}
     </div>
   )
