@@ -70,8 +70,8 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4 — Piloter (tableau de bord)
-  epic-4: backlog
-  4-1-tableau-de-bord-benefices-marge-moyenne-argent-dormant: backlog
+  epic-4: in-progress
+  4-1-tableau-de-bord-benefices-marge-moyenne-argent-dormant: review
   4-2-historique-des-ventes: backlog
   4-3-benefices-par-periode: backlog
   4-4-alerte-pieces-qui-stagnent: backlog

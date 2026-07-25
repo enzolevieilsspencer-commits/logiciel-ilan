@@ -6,6 +6,8 @@ import { usePieces } from '../features/pieces/usePieces'
 import { StockScreen } from '../features/pieces/StockScreen'
 import { AddPieceScreen } from '../features/pieces/AddPieceScreen'
 import { PieceDetailScreen } from '../features/pieces/PieceDetailScreen'
+import { useDashboard } from '../features/dashboard/useDashboard'
+import { DashboardScreen } from '../features/dashboard/DashboardScreen'
 import type { Piece } from '../features/pieces/types'
 
 export function AppShell() {
@@ -13,6 +15,13 @@ export function AppShell() {
   const [adding, setAdding] = useState(false)
   const [selected, setSelected] = useState<Piece | null>(null)
   const { pieces, urls, loading, error, refresh } = usePieces()
+  const dashboard = useDashboard()
+
+  // Rafraîchit stock + tableau de bord après toute mutation.
+  const refreshAll = () => {
+    refresh()
+    dashboard.refresh()
+  }
 
   // Overlay d'ajout (ouvert par le FAB).
   if (adding) {
@@ -21,7 +30,7 @@ export function AppShell() {
         onCancel={() => setAdding(false)}
         onAdded={() => {
           setAdding(false)
-          refresh()
+          refreshAll()
         }}
       />
     )
@@ -35,11 +44,11 @@ export function AppShell() {
         onBack={() => setSelected(null)}
         onChanged={() => {
           setSelected(null)
-          refresh()
+          refreshAll()
         }}
         onDeleted={() => {
           setSelected(null)
-          refresh()
+          refreshAll()
         }}
       />
     )
@@ -50,13 +59,12 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-app pb-20">
       {tab === 'accueil' && (
-        <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 p-6 pt-16 text-center">
-          <h1 className="text-2xl font-bold text-teal-dark">Salut Ilan 👋</h1>
-          <p className="text-muted">
-            {pieces.length} pièce{pieces.length > 1 ? 's' : ''} en stock
-          </p>
-          <p className="text-sm text-muted">Ton tableau de bord arrive bientôt. 📊</p>
-        </div>
+        <DashboardScreen
+          data={dashboard.data}
+          empty={dashboard.empty}
+          loading={dashboard.loading}
+          error={dashboard.error}
+        />
       )}
 
       {tab === 'stock' && (
