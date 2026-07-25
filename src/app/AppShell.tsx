@@ -4,6 +4,7 @@ import { TabBar, type TabKey } from '../components/ui/TabBar'
 import { Fab } from '../components/ui/Fab'
 import { usePieces } from '../features/pieces/usePieces'
 import { StockScreen } from '../features/pieces/StockScreen'
+import { HistoryScreen } from '../features/pieces/HistoryScreen'
 import { AddPieceScreen } from '../features/pieces/AddPieceScreen'
 import { PieceDetailScreen } from '../features/pieces/PieceDetailScreen'
 import { useDashboard } from '../features/dashboard/useDashboard'
@@ -14,12 +15,14 @@ export function AppShell() {
   const [tab, setTab] = useState<TabKey>('stock')
   const [adding, setAdding] = useState(false)
   const [selected, setSelected] = useState<Piece | null>(null)
-  const { pieces, urls, loading, error, refresh } = usePieces()
+  const { pieces, urls, loading, error, refresh } = usePieces('en_stock')
+  const history = usePieces('vendue')
   const dashboard = useDashboard()
 
-  // Rafraîchit stock + tableau de bord après toute mutation.
+  // Rafraîchit stock + historique + tableau de bord après toute mutation.
   const refreshAll = () => {
     refresh()
+    history.refresh()
     dashboard.refresh()
   }
 
@@ -72,10 +75,13 @@ export function AppShell() {
       )}
 
       {tab === 'stats' && (
-        <div className="flex flex-col items-center justify-center gap-2 p-6 pt-24 text-center">
-          <span className="text-4xl">📊</span>
-          <p className="text-muted">Tes stats et ton historique arrivent bientôt.</p>
-        </div>
+        <HistoryScreen
+          pieces={history.pieces}
+          urls={history.urls}
+          loading={history.loading}
+          error={history.error}
+          onSelect={setSelected}
+        />
       )}
 
       {tab === 'reglages' && (

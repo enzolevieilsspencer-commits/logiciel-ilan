@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import type { Piece } from './types'
+import type { Piece, Statut } from './types'
 
 /**
- * Charge les pièces *en stock* (RLS filtre déjà par utilisateur) et génère
+ * Charge les pièces d'un statut donné (RLS filtre déjà par utilisateur) et génère
  * les URLs signées (bucket privé) pour leurs photos, en batch.
+ * Tri : vendues par date de vente, sinon par date de création (desc).
  */
-export function usePieces() {
+export function usePieces(statut: Statut = 'en_stock') {
   const [pieces, setPieces] = useState<Piece[]>([])
   const [urls, setUrls] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
@@ -18,8 +19,8 @@ export function usePieces() {
     const { data, error: e } = await supabase
       .from('piece')
       .select('*')
-      .eq('statut', 'en_stock')
-      .order('created_at', { ascending: false })
+      .eq('statut', statut)
+      .order(statut === 'vendue' ? 'sold_at' : 'created_at', { ascending: false })
 
     if (e) {
       setError('Impossible de charger le stock.')
@@ -42,7 +43,7 @@ export function usePieces() {
       setUrls({})
     }
     setLoading(false)
-  }, [])
+  }, [statut])
 
   useEffect(() => {
     refresh()
