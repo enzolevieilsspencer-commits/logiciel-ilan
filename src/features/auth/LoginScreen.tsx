@@ -31,7 +31,7 @@ export function LoginScreen() {
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-white to-app p-6 text-ink">
       <div className="flex w-full max-w-sm flex-col gap-6 rounded-[var(--radius-card)] bg-white p-8 shadow-xl">
         <div className="flex flex-col items-center gap-3 text-center">
-          <img src="/pwa-192x192.png" alt="" className="h-16 w-16 rounded-[28%] object-cover shadow-md" />
+          <img src="/logo-rounded.png" alt="" className="h-16 w-16 drop-shadow-md" />
           <div>
             <h1 className="text-xl font-bold text-teal-dark">Vendly</h1>
             <p className="mt-1 text-sm text-muted">Connecte-toi pour retrouver ton stock.</p>

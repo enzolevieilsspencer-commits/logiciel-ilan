@@ -13,7 +13,7 @@ export function Sidebar({ active, onChange, onAdd, onLogout }: SidebarProps) {
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-black/5 bg-white p-4 md:flex">
       <div className="flex items-center gap-2.5 px-2 py-2">
-        <img src="/pwa-192x192.png" alt="" className="h-9 w-9 rounded-[28%] object-cover" />
+        <img src="/logo-rounded.png" alt="" className="h-9 w-9" />
         <span className="font-bold leading-tight text-teal-dark">
           Vendly
           <span className="block text-xs font-medium text-muted">Stock &amp; marge</span>
