@@ -10,7 +10,7 @@ interface TabBarProps {
 /** Barre de navigation basse — mobile uniquement (le desktop utilise la Sidebar). */
 export function TabBar({ active, onChange }: TabBarProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-black/5 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-black/5 bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
       {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
         const on = active === key
         return (

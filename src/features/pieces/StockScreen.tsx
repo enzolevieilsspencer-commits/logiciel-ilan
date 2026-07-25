@@ -29,7 +29,7 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
           <button
             type="button"
             onClick={() => setShowFilters(true)}
-            className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-teal-dark shadow-sm"
+            className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-sm font-semibold text-teal-dark shadow-sm"
           >
             <SlidersHorizontal size={15} /> Filtrer
             {count > 0 && (
@@ -42,7 +42,7 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
       {loading && (
         <div className="flex flex-col gap-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-[74px] animate-pulse rounded-[var(--radius-md)] bg-white/70" />
+            <div key={i} className="h-[74px] animate-pulse rounded-[var(--radius-md)] bg-surface/70" />
           ))}
         </div>
       )}
@@ -51,7 +51,7 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
 
       {!loading && !error && pieces.length === 0 && (
         <div className="mt-16 flex flex-col items-center gap-3 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-teal shadow-sm">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-teal shadow-sm">
             <Package size={30} />
           </span>
           <p className="font-semibold text-ink">Ton stock est vide</p>
@@ -61,7 +61,7 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
 
       {hasStock && filtered.length === 0 && (
         <div className="mt-16 flex flex-col items-center gap-3 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-teal shadow-sm">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-teal shadow-sm">
             <Search size={30} />
           </span>
           <p className="font-semibold text-ink">Aucune pièce ne correspond à tes filtres</p>

@@ -168,13 +168,13 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
           <span className="w-16" />
         </div>
 
-        <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-white shadow-sm">
+        <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-surface shadow-sm">
           {photoSrc ? (
             <img src={photoSrc} alt="" className="h-full w-full object-cover" />
           ) : (
             <Shirt size={56} className="text-teal-dark/40" />
           )}
-          <label className="absolute bottom-3 right-3 flex cursor-pointer items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-teal-dark shadow backdrop-blur">
+          <label className="absolute bottom-3 right-3 flex cursor-pointer items-center gap-2 rounded-full bg-surface/90 px-3 py-1.5 text-sm font-semibold text-teal-dark shadow backdrop-blur">
             <Camera size={16} /> Photo
             <input
               type="file"
@@ -187,13 +187,13 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
         </div>
 
         {margeLabel && (
-          <div className="rounded-[var(--radius-card)] bg-white p-4 text-center shadow-sm">
+          <div className="rounded-[var(--radius-card)] bg-surface p-4 text-center shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted">Marge</p>
             <p className={`text-3xl font-extrabold ${margePositive ? 'text-green' : 'text-amber'}`}>{margeLabel}</p>
           </div>
         )}
 
-        <form onSubmit={handleSave} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+        <form onSubmit={handleSave} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
           <div className="flex flex-col gap-2 text-sm font-semibold text-muted">
             Catégorie
             <Chips options={CATEGORIES} value={categorie} onChange={setCategorie} />
@@ -237,7 +237,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
           </button>
         </form>
 
-        <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+        <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
           {piece.statut === 'vendue' ? (
             <div className="flex flex-col gap-3">
               <p className="flex items-center gap-2 text-sm font-semibold text-green">
@@ -280,7 +280,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
               <Trash2 size={16} /> Supprimer cette pièce
             </button>
           ) : (
-            <div className="flex flex-col gap-3 rounded-[var(--radius-card)] bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 rounded-[var(--radius-card)] bg-surface p-4 shadow-sm">
               <p className="text-sm font-semibold text-ink">Supprimer définitivement cette pièce ?</p>
               <div className="flex gap-3">
                 <button

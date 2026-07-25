@@ -24,7 +24,7 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
     <button
       type="button"
       onClick={() => onSelect(piece)}
-      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] bg-white p-2.5 text-left shadow-sm"
+      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] bg-surface p-2.5 text-left shadow-sm"
     >
       <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-app">
         {photoUrl ? (

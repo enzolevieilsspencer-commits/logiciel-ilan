@@ -70,7 +70,7 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
           <span className="w-16" />
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
           {/* Zone photo cliquable */}
           <label className="flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-app">
             {previewUrl ? (

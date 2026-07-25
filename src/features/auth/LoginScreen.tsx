@@ -28,8 +28,8 @@ export function LoginScreen() {
     'w-full rounded-[var(--radius-md)] bg-app py-3 pl-11 pr-4 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-white to-app p-6 text-ink">
-      <div className="flex w-full max-w-sm flex-col gap-6 rounded-[var(--radius-card)] bg-white p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-surface to-app p-6 text-ink">
+      <div className="flex w-full max-w-sm flex-col gap-6 rounded-[var(--radius-card)] bg-surface p-8 shadow-xl">
         <div className="flex flex-col items-center gap-3 text-center">
           <img src="/logo-rounded.png" alt="" className="h-16 w-16 drop-shadow-md" />
           <div>

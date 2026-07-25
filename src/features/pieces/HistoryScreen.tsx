@@ -18,7 +18,7 @@ export function HistoryScreen({ pieces, urls, loading, error, onSelect }: Histor
       {loading && (
         <div className="flex flex-col gap-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-[74px] animate-pulse rounded-[var(--radius-md)] bg-white/70" />
+            <div key={i} className="h-[74px] animate-pulse rounded-[var(--radius-md)] bg-surface/70" />
           ))}
         </div>
       )}
@@ -27,7 +27,7 @@ export function HistoryScreen({ pieces, urls, loading, error, onSelect }: Histor
 
       {!loading && !error && pieces.length === 0 && (
         <div className="mt-16 flex flex-col items-center gap-3 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-teal shadow-sm">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-teal shadow-sm">
             <Receipt size={30} />
           </span>
           <p className="font-semibold text-ink">Pas encore de vente</p>

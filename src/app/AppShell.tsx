@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TabBar } from '../components/ui/TabBar'
 import { Sidebar } from '../components/ui/Sidebar'
@@ -12,6 +11,7 @@ import { AddPieceScreen } from '../features/pieces/AddPieceScreen'
 import { PieceDetailScreen } from '../features/pieces/PieceDetailScreen'
 import { useDashboard } from '../features/dashboard/useDashboard'
 import { DashboardScreen } from '../features/dashboard/DashboardScreen'
+import { SettingsScreen } from '../features/settings/SettingsScreen'
 import type { Piece } from '../features/pieces/types'
 
 export function AppShell() {
@@ -94,18 +94,7 @@ export function AppShell() {
           />
         )}
 
-        {tab === 'reglages' && (
-          <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6 pt-10">
-            <h1 className="text-xl font-bold text-teal-dark">Réglages</h1>
-            <button
-              type="button"
-              onClick={() => supabase.auth.signOut()}
-              className="flex items-center gap-2 self-start rounded-[var(--radius-md)] bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark shadow"
-            >
-              <LogOut size={16} /> Se déconnecter
-            </button>
-          </div>
-        )}
+        {tab === 'reglages' && <SettingsScreen />}
       </main>
 
       {showFab && <Fab onClick={() => setAdding(true)} />}

@@ -51,7 +51,7 @@ export function FilterPanel({ pieces, filters, onChange, onClose }: FilterPanelP
                       className={
                         selected
                           ? 'rounded-full bg-teal px-3.5 py-2 text-sm font-semibold text-white'
-                          : 'rounded-full border border-[color:var(--color-teal)]/25 bg-white px-3.5 py-2 text-sm text-muted'
+                          : 'rounded-full border border-[color:var(--color-teal)]/25 bg-surface px-3.5 py-2 text-sm text-muted'
                       }
                     >
                       {value}

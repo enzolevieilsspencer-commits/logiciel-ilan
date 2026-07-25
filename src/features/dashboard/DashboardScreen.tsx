@@ -49,7 +49,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, sub, icon: Icon, valueClass }: StatCardProps) {
   return (
-    <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+    <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <p className="text-sm font-medium text-muted">{label}</p>
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-app text-teal-dark">
@@ -177,7 +177,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
       {loading && (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-[var(--radius-card)] bg-white/70" />
+            <div key={i} className="h-32 animate-pulse rounded-[var(--radius-card)] bg-surface/70" />
           ))}
         </div>
       )}
@@ -185,7 +185,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
       {!loading && error && <p className="mt-6 text-sm text-amber">{error}</p>}
 
       {!loading && !error && empty && (
-        <div className="mt-8 flex flex-col items-center gap-4 rounded-[var(--radius-card)] bg-white p-10 text-center shadow-sm">
+        <div className="mt-8 flex flex-col items-center gap-4 rounded-[var(--radius-card)] bg-surface p-10 text-center shadow-sm">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-app text-teal">
             <Package size={30} />
           </span>
@@ -217,7 +217,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
                   onClick={() => setPeriod(p.key)}
                   aria-pressed={active}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${
-                    active ? 'bg-teal text-white' : 'bg-white text-muted shadow-sm'
+                    active ? 'bg-teal text-white' : 'bg-surface text-muted shadow-sm'
                   }`}
                 >
                   {p.label}
@@ -231,7 +231,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
             <div className="rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-teal-dark p-5 text-white shadow-lg">
               <div className="flex items-start justify-between">
                 <p className="text-sm font-medium opacity-90">Bénéfices</p>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">
                   <TrendingUp size={18} />
                 </span>
               </div>
@@ -254,7 +254,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+            <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
                 <BarChart3 size={18} className="text-teal-dark" />
                 <h2 className="font-bold text-ink">Bénéfices par mois</h2>
@@ -263,7 +263,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
               <BenefitsLineChart data={parMois} />
             </div>
 
-            <div className="rounded-[var(--radius-card)] bg-white p-5 shadow-sm">
+            <div className="rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
                 <Layers size={18} className="text-teal-dark" />
                 <h2 className="font-bold text-ink">Répartition du stock</h2>
