@@ -95,24 +95,33 @@ function BenefitsLineChart({ data }: { data: MonthBucket[] }) {
 
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-40 w-full overflow-visible">
-        <defs>
-          <linearGradient id="benefFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#09b1ba" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="#09b1ba" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {area && <path d={area} fill="url(#benefFill)" />}
-        <path
-          d={line}
-          fill="none"
-          stroke="#09b1ba"
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
+      <div className="relative h-40 w-full">
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full overflow-visible">
+          <defs>
+            <linearGradient id="benefFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#09b1ba" stopOpacity="0.32" />
+              <stop offset="100%" stopColor="#09b1ba" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {area && <path d={area} fill="url(#benefFill)" />}
+          <path
+            d={line}
+            fill="none"
+            stroke="#09b1ba"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+        {points.map((p, i) => (
+          <span
+            key={i}
+            className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal ring-2 ring-surface"
+            style={{ left: `${p.x}%`, top: `${(p.y / H) * 100}%` }}
+          />
+        ))}
+      </div>
       <div className="mt-1.5 flex gap-2">
         {data.map((d, i) => (
           <span key={i} className="flex-1 text-center text-xs capitalize text-muted">
@@ -228,7 +237,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Bénéfices — carte héro */}
-            <div className="rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-teal-dark p-5 text-white shadow-lg">
+            <div className="rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-[#036b74] p-5 text-white shadow-lg">
               <div className="flex items-start justify-between">
                 <p className="text-sm font-medium opacity-90">Bénéfices</p>
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">

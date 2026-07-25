@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Active le variant `dark:` sur la classe .dark (posée sur <html>). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Tokens de marque « Vinted-friendly » (source : DESIGN.md).
    Le namespace --color-* génère les utilitaires : bg-app, bg-surface, text-teal-dark… */
 @theme {
@@ -21,13 +24,18 @@
 /* Mode sombre : on redéfinit les tokens sémantiques, tout l'UI suit. */
 .dark {
   color-scheme: dark;
-  --color-app: #0e1a1a;
-  --color-surface: #172524;
-  --color-ink: #e7f0ef;
-  --color-muted: #90a2a1;
-  --color-teal-dark: #46cdd5;
-  --color-green: #3ec97a;
-  --color-amber: #efb45c;
+  --color-app: #0c1615; /* fond */
+  --color-surface: #1a2827; /* cartes (contraste net avec le fond) */
+  --color-ink: #eaf2f1;
+  --color-muted: #9bacab;
+  --color-teal-dark: #4fd3da; /* teal clair pour les titres/icônes sur fond sombre */
+  --color-green: #43cd80;
+  --color-amber: #f2b65f;
+}
+
+/* En sombre, un liseré discret sur les surfaces pour bien les détacher du fond. */
+.dark .bg-surface {
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 html,
