@@ -21,9 +21,11 @@ import {
   type Timeframe,
 } from '../../lib/derive'
 
-type Period = 'mois' | 'annee' | 'total'
+type Period = 'jour' | 'semaine' | 'mois' | 'annee' | 'total'
 
 const PERIODS: { key: Period; label: string }[] = [
+  { key: 'jour', label: "Aujourd'hui" },
+  { key: 'semaine', label: 'Cette semaine' },
   { key: 'mois', label: 'Ce mois' },
   { key: 'annee', label: 'Cette année' },
   { key: 'total', label: 'Depuis le début' },
@@ -31,6 +33,12 @@ const PERIODS: { key: Period; label: string }[] = [
 
 function boundaryISO(period: Period): string | null {
   const now = new Date()
+  if (period === 'jour') return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+  if (period === 'semaine') {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7)) // recule jusqu'au lundi
+    return d.toISOString()
+  }
   if (period === 'mois') return new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   if (period === 'annee') return new Date(now.getFullYear(), 0, 1).toISOString()
   return null
