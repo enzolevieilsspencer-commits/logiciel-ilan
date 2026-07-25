@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
 
-/** Détecte le lancement en PWA installée (mode standalone) ou sur mobile tactile. */
+/** Vrai uniquement quand l'app tourne en PWA installée (mode standalone), pas dans le navigateur. */
 function shouldShowSplash(): boolean {
   if (typeof window === 'undefined') return false
-  const standalone =
+  return (
     window.matchMedia('(display-mode: standalone)').matches ||
     // iOS Safari expose `navigator.standalone`.
     (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-  const mobile = window.matchMedia('(max-width: 768px)').matches
-  return standalone || mobile
+  )
 }
 
 /**

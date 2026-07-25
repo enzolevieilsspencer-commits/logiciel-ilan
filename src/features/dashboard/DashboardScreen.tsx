@@ -240,7 +240,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
     <div className="mx-auto w-full max-w-5xl p-5 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink md:text-3xl">Tableau de bord</h1>
+          <h1 className="text-2xl font-bold text-ink md:text-3xl">Dashboard</h1>
           <p className="text-sm text-muted">Voilà où en est ton business aujourd'hui.</p>
         </div>
         <button

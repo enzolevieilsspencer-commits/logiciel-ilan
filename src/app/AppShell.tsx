@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { TabBar } from '../components/ui/TabBar'
 import { Sidebar } from '../components/ui/Sidebar'
-import { Fab } from '../components/ui/Fab'
+import { InstallPrompt } from '../components/ui/InstallPrompt'
 import type { TabKey } from '../components/ui/nav'
 import { usePieces } from '../features/pieces/usePieces'
 import { StockScreen } from '../features/pieces/StockScreen'
@@ -58,8 +58,6 @@ export function AppShell() {
     )
   }
 
-  const showFab = tab === 'accueil' || tab === 'stock'
-
   return (
     <div className="min-h-screen bg-app md:flex">
       <Sidebar
@@ -97,8 +95,8 @@ export function AppShell() {
         {tab === 'reglages' && <SettingsScreen />}
       </main>
 
-      {showFab && <Fab onClick={() => setAdding(true)} />}
-      <TabBar active={tab} onChange={setTab} />
+      <InstallPrompt />
+      <TabBar active={tab} onChange={setTab} onAdd={() => setAdding(true)} />
     </div>
   )
 }
