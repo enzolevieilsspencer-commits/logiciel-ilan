@@ -59,15 +59,16 @@ export function Splash() {
       <div className="splash-glow splash-glow--1" aria-hidden="true" />
       <div className="splash-glow splash-glow--2" aria-hidden="true" />
 
-      {/* Logo avec halo lumineux pulsé. */}
+      {/* Logo avec halo lumineux pulsé + onde de lumière à l'apparition. */}
       <div className="splash-logo relative">
         <div className="splash-halo" aria-hidden="true" />
+        <span className="splash-ring" aria-hidden="true" />
         <img
           src="/logo-rounded.png"
           alt="Vendly"
           width={128}
           height={128}
-          className="relative h-32 w-32 rounded-[28px] shadow-2xl"
+          className="splash-logo-img relative h-32 w-32 rounded-[28px] shadow-2xl"
           draggable={false}
         />
       </div>

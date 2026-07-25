@@ -179,7 +179,6 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={(e) => setNewPhoto(e.target.files?.[0] ?? null)}
               className="hidden"
             />

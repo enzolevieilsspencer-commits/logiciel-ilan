@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, Camera, Check } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { ArrowLeft, Camera, Check, Images } from 'lucide-react'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, eurosToCents } from './types'
 import { createPiece } from './addPiece'
@@ -11,6 +11,8 @@ interface AddPieceScreenProps {
 
 export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
   const [photo, setPhoto] = useState<File | null>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [categorie, setCategorie] = useState<string | null>(null)
   const [couleur, setCouleur] = useState<string | null>(null)
@@ -71,24 +73,54 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-surface p-5 shadow-sm">
-          {/* Zone photo cliquable */}
-          <label className="flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-app">
-            {previewUrl ? (
-              <img src={previewUrl} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="flex flex-col items-center gap-2 text-teal-dark">
-                <Camera size={30} />
-                <span className="text-sm font-semibold">Prendre une photo</span>
-              </span>
-            )}
+          {/* Zone photo : caméra ou galerie */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex h-44 items-center justify-center overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-app">
+              {previewUrl ? (
+                <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex flex-col items-center gap-2 text-teal-dark">
+                  <Camera size={30} />
+                  <span className="text-sm font-semibold">Ajoute une photo</span>
+                </span>
+              )}
+            </div>
+
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-teal py-2.5 text-sm font-semibold text-white shadow-sm"
+              >
+                <Camera size={18} /> {previewUrl ? 'Reprendre' : 'Photo'}
+              </button>
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                className="flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-app py-2.5 text-sm font-semibold text-teal-dark ring-1 ring-teal/30"
+              >
+                <Images size={18} /> Galerie
+              </button>
+            </div>
+
+            {/* Caméra : capture directe (mobile). */}
             <input
+              ref={cameraInputRef}
               type="file"
               accept="image/*"
               capture="environment"
               onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
               className="hidden"
             />
-          </label>
+            {/* Galerie / pellicule : sélection d'une image existante. */}
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+          </div>
 
           <div className="flex flex-col gap-2 text-sm font-semibold text-muted">
             Catégorie

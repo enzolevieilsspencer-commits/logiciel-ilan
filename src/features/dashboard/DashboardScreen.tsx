@@ -105,7 +105,7 @@ function smoothPath(points: { x: number; y: number }[]): string {
   return d
 }
 
-function BenefitsChart({ data }: { data: MonthBucket[] }) {
+function BenefitsChart({ data, chartKey }: { data: MonthBucket[]; chartKey: string }) {
   const [hover, setHover] = useState<number | null>(null)
   const W = 100
   const H = 40
@@ -141,7 +141,7 @@ function BenefitsChart({ data }: { data: MonthBucket[] }) {
               <stop offset="100%" stopColor="#09b1ba" stopOpacity="0" />
             </linearGradient>
           </defs>
-          {area && <path d={area} fill="url(#benefFill)" />}
+          {area && <path key={`a-${chartKey}`} className="chart-area" d={area} fill="url(#benefFill)" />}
           {hover !== null && (
             <line
               x1={points[hover].x}
@@ -156,20 +156,24 @@ function BenefitsChart({ data }: { data: MonthBucket[] }) {
             />
           )}
           <path
+            key={`l-${chartKey}`}
+            className="chart-line"
             d={line}
+            pathLength={1}
             fill="none"
             stroke="#09b1ba"
             strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
+            style={{ filter: 'drop-shadow(0 2px 5px rgba(9,177,186,0.45))' }}
           />
         </svg>
         {points.map((p, i) => (
           <span
             key={i}
             className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal ring-2 ring-surface transition-all ${
-              i === hover ? 'h-3.5 w-3.5' : 'h-2.5 w-2.5'
+              i === hover ? 'h-3.5 w-3.5 shadow-[0_0_10px_2px_rgba(9,177,186,0.6)]' : 'h-2.5 w-2.5'
             }`}
             style={{ left: `${p.x}%`, top: `${(p.y / H) * 100}%` }}
           />
@@ -304,31 +308,36 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
             })}
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Bénéfices — carte héro */}
-            <div className="rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-[#036b74] p-5 text-white shadow-lg">
-              <div className="flex items-start justify-between">
-                <p className="text-sm font-medium opacity-90">Bénéfices</p>
+          <div className="mt-4 grid gap-4">
+            {/* Bénéfices — carte héro pleine largeur, mise en avant */}
+            <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br from-teal to-[#036b74] p-5 text-white shadow-[0_10px_30px_-8px_rgba(9,177,186,0.6)]">
+              <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+              <div className="relative flex items-start justify-between">
+                <p className="text-sm font-semibold uppercase tracking-wide opacity-90">Bénéfices</p>
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">
                   <TrendingUp size={18} />
                 </span>
               </div>
-              <p className="mt-3 text-3xl font-extrabold">{euros(data.beneficesCents)}</p>
-              <p className="mt-0.5 flex items-center gap-1 text-xs opacity-90">
+              <p className="relative mt-3 text-4xl font-black tracking-tight drop-shadow-sm sm:text-5xl">
+                {euros(data.beneficesCents)}
+              </p>
+              <span className="relative mt-3 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
                 <ArrowUpRight size={14} />
                 Marge moyenne {data.margeMoyennePct === null ? '—' : `${Math.round(data.margeMoyennePct)} %`}
-              </p>
+              </span>
             </div>
 
-            <StatCard
-              label="Argent qui dort"
-              value={euros(data.argentDormantCents)}
-              sub="Capital en stock"
-              icon={PiggyBank}
-              valueClass="text-amber"
-            />
-            <StatCard label="Pièces en stock" value={String(nbEnStock)} sub="à vendre" icon={Package} />
-            <StatCard label="Ventes" value={String(nbVendues)} sub="au total" icon={ShoppingBag} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <StatCard
+                label="Argent qui dort"
+                value={euros(data.argentDormantCents)}
+                sub="Capital en stock"
+                icon={PiggyBank}
+                valueClass="text-amber"
+              />
+              <StatCard label="Pièces en stock" value={String(nbEnStock)} sub="à vendre" icon={Package} />
+              <StatCard label="Ventes" value={String(nbVendues)} sub="au total" icon={ShoppingBag} />
+            </div>
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -355,7 +364,7 @@ export function DashboardScreen({ rows, empty, loading, error, onAdd }: Dashboar
                   />
                 </div>
               </div>
-              <BenefitsChart data={series} />
+              <BenefitsChart data={series} chartKey={tf} />
               <p className="mt-2 text-center text-[11px] text-muted">{timeframe.legend}</p>
             </div>
 
