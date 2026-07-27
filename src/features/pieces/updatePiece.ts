@@ -4,7 +4,14 @@ import type { Piece } from './types'
 export type PiecePatch = Partial<
   Pick<
     Piece,
-    'photo_path' | 'categorie' | 'couleur' | 'taille' | 'marque' | 'prix_achat_cents' | 'prix_vente_cents'
+    | 'photo_path'
+    | 'categorie'
+    | 'couleur'
+    | 'taille'
+    | 'marque'
+    | 'prix_achat_cents'
+    | 'prix_vente_cents'
+    | 'sold_at'
   >
 >
 
@@ -20,11 +27,18 @@ export async function deletePiece(id: string): Promise<void> {
   if (error) throw error
 }
 
-/** Marque une pièce comme vendue : fixe le prix de vente et la date de vente. */
-export async function sellPiece(id: string, prixVenteCents: number): Promise<void> {
+/**
+ * Marque une pièce comme vendue : fixe le prix de vente et la date de vente.
+ * `soldAtISO` permet d'antidater la vente (par défaut : maintenant).
+ */
+export async function sellPiece(
+  id: string,
+  prixVenteCents: number,
+  soldAtISO: string = new Date().toISOString(),
+): Promise<void> {
   const { error } = await supabase
     .from('piece')
-    .update({ statut: 'vendue', prix_vente_cents: prixVenteCents, sold_at: new Date().toISOString() })
+    .update({ statut: 'vendue', prix_vente_cents: prixVenteCents, sold_at: soldAtISO })
     .eq('id', id)
   if (error) throw error
 }

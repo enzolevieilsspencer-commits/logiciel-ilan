@@ -13,12 +13,24 @@ interface StockScreenProps {
   onSelect: (piece: Piece) => void
 }
 
+/** Recherche plein-texte simple sur marque / catégorie / couleur / taille. */
+function matchesQuery(piece: Piece, q: string): boolean {
+  if (q === '') return true
+  const haystack = [piece.marque, piece.categorie, piece.couleur, piece.taille]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+  return haystack.includes(q)
+}
+
 export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScreenProps) {
   const [filters, setFilters] = useState<PieceFilters>(EMPTY_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
+  const [query, setQuery] = useState('')
 
   const count = activeFilterCount(filters)
-  const filtered = applyFilters(pieces, filters)
+  const q = query.trim().toLowerCase()
+  const filtered = applyFilters(pieces, filters).filter((p) => matchesQuery(p, q))
   const hasStock = !loading && !error && pieces.length > 0
 
   return (
@@ -38,6 +50,19 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
           </button>
         )}
       </div>
+
+      {hasStock && (
+        <div className="relative px-1">
+          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher (marque, catégorie…)"
+            className="w-full rounded-[var(--radius-md)] bg-surface py-2.5 pl-10 pr-4 text-sm text-ink shadow-sm outline-none focus:ring-2 focus:ring-teal"
+          />
+        </div>
+      )}
 
       {loading && (
         <div className="flex flex-col gap-3">
@@ -64,10 +89,13 @@ export function StockScreen({ pieces, urls, loading, error, onSelect }: StockScr
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-teal shadow-sm">
             <Search size={30} />
           </span>
-          <p className="font-semibold text-ink">Aucune pièce ne correspond à tes filtres</p>
+          <p className="font-semibold text-ink">Aucune pièce ne correspond à ta recherche</p>
           <button
             type="button"
-            onClick={() => setFilters(EMPTY_FILTERS)}
+            onClick={() => {
+              setFilters(EMPTY_FILTERS)
+              setQuery('')
+            }}
             className="text-sm font-semibold text-teal-dark underline"
           >
             Effacer les filtres

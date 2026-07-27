@@ -11,6 +11,8 @@ import { supabase } from '../../lib/supabase'
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  // Vrai quand l'utilisateur arrive via un lien de réinitialisation de mot de passe.
+  const [recovery, setRecovery] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -20,12 +22,13 @@ export function useSession() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
       setSession(nextSession)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  return { session, loading }
+  return { session, loading, recovery, endRecovery: () => setRecovery(false) }
 }

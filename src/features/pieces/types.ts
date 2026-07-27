@@ -40,3 +40,15 @@ export function centsToEuros(cents: number | null): string {
   if (cents == null) return ''
   return (cents / 100).toFixed(2).replace('.', ',')
 }
+
+/** ISO (ou null) → valeur d'un <input type="date"> « YYYY-MM-DD » (défaut : aujourd'hui). */
+export function isoToDateInput(iso: string | null): string {
+  const d = iso ? new Date(iso) : new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** Valeur d'un <input type="date"> « YYYY-MM-DD » → ISO (midi local, évite le décalage de fuseau). */
+export function dateInputToISO(value: string): string {
+  return new Date(`${value}T12:00:00`).toISOString()
+}

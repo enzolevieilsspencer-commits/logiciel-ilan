@@ -2,7 +2,15 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, Camera, CheckCircle2, RotateCcw, Shirt, Tag, Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Chips } from '../../components/ui/Chips'
-import { CATEGORIES, COULEURS, centsToEuros, eurosToCents, type Piece } from './types'
+import {
+  CATEGORIES,
+  COULEURS,
+  centsToEuros,
+  eurosToCents,
+  isoToDateInput,
+  dateInputToISO,
+  type Piece,
+} from './types'
 import { uploadPhoto, deletePhoto } from './storage'
 import { computeMargin } from '../../lib/derive'
 import { updatePiece, deletePiece, sellPiece, restockPiece, type PiecePatch } from './updatePiece'
@@ -21,6 +29,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   const [marque, setMarque] = useState(piece.marque ?? '')
   const [prixAchat, setPrixAchat] = useState(centsToEuros(piece.prix_achat_cents))
   const [prixVente, setPrixVente] = useState(centsToEuros(piece.prix_vente_cents))
+  const [soldDate, setSoldDate] = useState(isoToDateInput(piece.sold_at))
   const [newPhoto, setNewPhoto] = useState<File | null>(null)
 
   const [signedUrl, setSignedUrl] = useState<string | null>(null)
@@ -74,6 +83,10 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
       prix_achat_cents: prixAchatCents,
       prix_vente_cents: prixVenteCents,
     }
+    // Pièce déjà vendue : on autorise la correction de la date de vente.
+    if (piece.statut === 'vendue') {
+      patch.sold_at = dateInputToISO(soldDate)
+    }
 
     const oldPath = piece.photo_path
     if (newPhoto) {
@@ -118,7 +131,7 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
     }
     setStatusBusy(true)
     try {
-      await sellPiece(piece.id, prixVenteCents)
+      await sellPiece(piece.id, prixVenteCents, dateInputToISO(soldDate))
       onChanged()
     } catch {
       setError('Impossible de marquer comme vendue. Réessaie.')
@@ -236,6 +249,19 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
             </label>
           </div>
 
+          {piece.statut === 'vendue' && (
+            <label className="flex flex-col gap-1 text-sm font-semibold text-muted">
+              Date de vente
+              <input
+                type="date"
+                value={soldDate}
+                max={isoToDateInput(null)}
+                onChange={(e) => setSoldDate(e.target.value)}
+                className={inputClass}
+              />
+            </label>
+          )}
+
           {error && <p className="text-sm font-medium text-amber">{error}</p>}
 
           <button
@@ -268,6 +294,16 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
               <p className="text-sm text-muted">
                 Cette pièce est <span className="font-semibold text-teal-dark">en stock</span>.
               </p>
+              <label className="flex flex-col gap-1 text-sm font-semibold text-muted">
+                Date de vente
+                <input
+                  type="date"
+                  value={soldDate}
+                  max={isoToDateInput(null)}
+                  onChange={(e) => setSoldDate(e.target.value)}
+                  className={inputClass}
+                />
+              </label>
               <button
                 type="button"
                 onClick={handleSell}
