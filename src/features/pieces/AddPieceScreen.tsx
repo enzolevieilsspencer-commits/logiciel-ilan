@@ -54,8 +54,8 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
   }
 
   const inputClass =
-    'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
-  const labelClass = 'flex flex-1 flex-col gap-1 text-sm font-semibold text-muted'
+    'w-full min-w-0 rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
+  const labelClass = 'flex min-w-0 flex-1 flex-col gap-1 text-sm font-semibold text-muted'
 
   return (
     <main className="fixed inset-0 z-40 flex flex-col bg-app text-ink">

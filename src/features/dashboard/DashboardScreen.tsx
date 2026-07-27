@@ -188,17 +188,25 @@ function BenefitsChart({ data, chartKey }: { data: MonthBucket[]; chartKey: stri
           </div>
         )}
       </div>
-      <div className="mt-1.5 flex gap-2">
-        {data.map((d, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setHover(i)}
-            className={`flex-1 text-center text-xs capitalize ${i === hover ? 'font-semibold text-teal-dark' : 'text-muted'}`}
-          >
-            {d.label}
-          </button>
-        ))}
+      <div className="mt-1.5 flex">
+        {data.map((d, i) => {
+          // Au-delà de ~7 points, on n'affiche qu'un libellé sur `step` pour éviter
+          // que les mois se chevauchent / débordent (ex. vue 12 mois).
+          const step = Math.ceil(n / 7)
+          const show = i % step === 0 || i === n - 1
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setHover(i)}
+              className={`min-w-0 flex-1 truncate px-0.5 text-center text-[11px] capitalize ${
+                i === hover ? 'font-semibold text-teal-dark' : 'text-muted'
+              }`}
+            >
+              {show ? d.label : ' '}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

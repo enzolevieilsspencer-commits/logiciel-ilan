@@ -139,8 +139,8 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
   }
 
   const inputClass =
-    'rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
-  const labelClass = 'flex flex-1 flex-col gap-1 text-sm font-semibold text-muted'
+    'w-full min-w-0 rounded-[var(--radius-md)] bg-app px-4 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-teal'
+  const labelClass = 'flex min-w-0 flex-1 flex-col gap-1 text-sm font-semibold text-muted'
   const photoSrc = previewUrl ?? signedUrl
 
   const margin = computeMargin(eurosToCents(prixAchat), eurosToCents(prixVente))
