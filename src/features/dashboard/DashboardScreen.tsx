@@ -169,15 +169,6 @@ function BenefitsChart({ data, chartKey }: { data: MonthBucket[]; chartKey: stri
             style={{ filter: 'drop-shadow(0 2px 5px rgba(9,177,186,0.45))' }}
           />
         </svg>
-        {points.map((p, i) => (
-          <span
-            key={i}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal ring-2 ring-surface transition-all ${
-              i === hover ? 'h-3.5 w-3.5 shadow-[0_0_10px_2px_rgba(9,177,186,0.6)]' : 'h-2.5 w-2.5'
-            }`}
-            style={{ left: `${p.x}%`, top: `${(p.y / H) * 100}%` }}
-          />
-        ))}
         {hover !== null && (
           <div
             className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-[var(--radius-sm)] bg-surface px-2.5 py-1.5 text-center shadow-lg ring-1 ring-black/5"
