@@ -159,7 +159,6 @@ function BenefitsChart({ data, chartKey }: { data: MonthBucket[]; chartKey: stri
             key={`l-${chartKey}`}
             className="chart-line"
             d={line}
-            pathLength={1}
             fill="none"
             stroke="#09b1ba"
             strokeWidth={2.5}

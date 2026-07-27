@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Mail, Lock, LogIn, UserPlus, Send } from 'lucide-react'
+import { Mail, Lock, LogIn, UserPlus, Send, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 type Mode = 'signin' | 'signup' | 'reset'
@@ -16,6 +16,7 @@ export function LoginScreen() {
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -147,13 +148,21 @@ export function LoginScreen() {
               <div className="relative">
                 <Lock size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete={isSignup ? 'new-password' : 'current-password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={fieldClass}
+                  className={`${fieldClass} pr-11`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </label>
           )}

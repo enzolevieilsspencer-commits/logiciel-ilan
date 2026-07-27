@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Lock, Check } from 'lucide-react'
+import { Lock, Check, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 /**
@@ -10,6 +10,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -49,13 +50,21 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
             <div className="relative">
               <Lock size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={fieldClass}
+                className={`${fieldClass} pr-11`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </label>
 
