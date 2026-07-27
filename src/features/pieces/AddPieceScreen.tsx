@@ -84,14 +84,16 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
         <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
           {/* Photo : caméra ou galerie */}
           <section className="flex flex-col gap-2.5">
-            <div className="flex h-48 items-center justify-center overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-surface">
+            <div className="overflow-hidden rounded-[var(--radius-card)] border-2 border-dashed border-teal/40 bg-surface">
               {previewUrl ? (
-                <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+                <img src={previewUrl} alt="" className="mx-auto max-h-[55vh] w-full object-contain" />
               ) : (
-                <span className="flex flex-col items-center gap-2 text-teal-dark">
-                  <Camera size={30} />
-                  <span className="text-sm font-semibold">Ajoute une photo</span>
-                </span>
+                <div className="flex h-48 items-center justify-center">
+                  <span className="flex flex-col items-center gap-2 text-teal-dark">
+                    <Camera size={30} />
+                    <span className="text-sm font-semibold">Ajoute une photo</span>
+                  </span>
+                </div>
               )}
             </div>
 

@@ -177,11 +177,13 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
       >
         <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-          <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[var(--radius-card)] bg-surface shadow-sm">
+          <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-surface shadow-sm">
           {photoSrc ? (
-            <img src={photoSrc} alt="" className="h-full w-full object-cover" />
+            <img src={photoSrc} alt="" className="mx-auto max-h-[60vh] w-full object-contain" />
           ) : (
-            <Shirt size={56} className="text-teal-dark/40" />
+            <div className="flex h-56 items-center justify-center">
+              <Shirt size={56} className="text-teal-dark/40" />
+            </div>
           )}
           <label className="absolute bottom-3 right-3 flex cursor-pointer items-center gap-2 rounded-full bg-surface/90 px-3 py-1.5 text-sm font-semibold text-teal-dark shadow backdrop-blur">
             <Camera size={16} /> Photo
