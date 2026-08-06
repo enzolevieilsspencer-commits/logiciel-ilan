@@ -41,6 +41,8 @@ export function AppShell() {
   // Toutes les pièces (stock + vendues) pour les calculs de box.
   const allPieces = [...pieces, ...history.pieces]
   const allUrls = { ...urls, ...history.urls }
+  // Section « Articles » : uniquement les pièces à l'unité (celles rattachées à une box y vivent).
+  const stockArticles = pieces.filter((p) => p.box_id == null)
   const selectedBox = boxes.find((b) => b.id === selectedBoxId) ?? null
 
   // Rafraîchit stock + historique + tableau de bord + box après toute mutation.
@@ -185,7 +187,7 @@ export function AppShell() {
         )}
 
         {tab === 'stock' && stockView === 'articles' && (
-          <StockScreen pieces={pieces} urls={urls} loading={loading} error={error} onSelect={setSelected} />
+          <StockScreen pieces={stockArticles} urls={urls} loading={loading} error={error} onSelect={setSelected} />
         )}
 
         {tab === 'stock' && stockView === 'box' && (
