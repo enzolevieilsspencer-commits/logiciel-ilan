@@ -30,3 +30,10 @@ export async function deleteBox(id: string): Promise<void> {
   const { error } = await supabase.from('box').delete().eq('id', id)
   if (error) throw error
 }
+
+/** Rattache (ou détache si boxId=null) plusieurs articles à une box en une fois. */
+export async function assignPiecesToBox(pieceIds: string[], boxId: string | null): Promise<void> {
+  if (pieceIds.length === 0) return
+  const { error } = await supabase.from('piece').update({ box_id: boxId }).in('id', pieceIds)
+  if (error) throw error
+}

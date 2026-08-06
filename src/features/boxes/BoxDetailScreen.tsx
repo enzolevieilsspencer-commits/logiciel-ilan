@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Pencil, Plus, Trash2, Package } from 'lucide-react'
+import { ArrowLeft, Pencil, Plus, Trash2, Package, ListPlus } from 'lucide-react'
 import { PieceRow } from '../pieces/PieceRow'
 import { computeBoxStats } from './boxStats'
 import { deleteBox } from './mutateBox'
@@ -14,6 +14,7 @@ interface BoxDetailScreenProps {
   onEdit: (box: Box) => void
   onDeleted: () => void
   onAddArticle: (box: Box) => void
+  onAddExisting: (box: Box) => void
   onSelectPiece: (piece: Piece) => void
 }
 
@@ -30,6 +31,7 @@ export function BoxDetailScreen({
   onEdit,
   onDeleted,
   onAddArticle,
+  onAddExisting,
   onSelectPiece,
 }: BoxDetailScreenProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -62,10 +64,9 @@ export function BoxDetailScreen({
         <button
           type="button"
           onClick={() => onEdit(box)}
-          aria-label="Modifier la box"
-          className="flex items-center gap-1 text-sm font-semibold text-muted"
+          className="flex items-center gap-1.5 text-sm font-semibold text-teal-dark"
         >
-          <Pencil size={16} />
+          <Pencil size={16} /> Modifier
         </button>
       </header>
 
@@ -99,15 +100,24 @@ export function BoxDetailScreen({
           </div>
 
           {/* Articles de la box */}
-          <div className="flex items-center justify-between px-1">
+          <div className="flex items-center justify-between gap-2 px-1">
             <h2 className="font-bold text-ink">Articles ({s.articles})</h2>
-            <button
-              type="button"
-              onClick={() => onAddArticle(box)}
-              className="flex items-center gap-1.5 rounded-full bg-teal px-3 py-1.5 text-sm font-semibold text-white shadow-sm"
-            >
-              <Plus size={15} /> Ajouter
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => onAddExisting(box)}
+                className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-sm font-semibold text-teal-dark shadow-sm ring-1 ring-teal/30"
+              >
+                <ListPlus size={15} /> Existant
+              </button>
+              <button
+                type="button"
+                onClick={() => onAddArticle(box)}
+                className="flex items-center gap-1.5 rounded-full bg-teal px-3 py-1.5 text-sm font-semibold text-white shadow-sm"
+              >
+                <Plus size={15} /> Nouveau
+              </button>
+            </div>
           </div>
 
           {articles.length === 0 ? (

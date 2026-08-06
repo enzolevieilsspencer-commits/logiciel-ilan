@@ -16,6 +16,7 @@ import { useBoxes } from '../features/boxes/useBoxes'
 import { BoxListScreen } from '../features/boxes/BoxListScreen'
 import { BoxDetailScreen } from '../features/boxes/BoxDetailScreen'
 import { AddBoxScreen } from '../features/boxes/AddBoxScreen'
+import { AssignArticlesScreen } from '../features/boxes/AssignArticlesScreen'
 import type { Box } from '../features/boxes/types'
 import type { Piece } from '../features/pieces/types'
 
@@ -30,6 +31,7 @@ export function AppShell() {
   const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null)
   const [addingBox, setAddingBox] = useState(false)
   const [editingBox, setEditingBox] = useState<Box | null>(null)
+  const [assigningToBox, setAssigningToBox] = useState<Box | null>(null)
 
   const { pieces, urls, loading, error, refresh } = usePieces('en_stock')
   const history = usePieces('vendue')
@@ -63,6 +65,21 @@ export function AppShell() {
           setAddingBox(false)
           setEditingBox(null)
           refreshBoxes()
+        }}
+      />
+    )
+  }
+
+  if (assigningToBox) {
+    return (
+      <AssignArticlesScreen
+        box={assigningToBox}
+        pieces={allPieces}
+        urls={allUrls}
+        onCancel={() => setAssigningToBox(null)}
+        onDone={() => {
+          setAssigningToBox(null)
+          refreshAll()
         }}
       />
     )
@@ -120,6 +137,7 @@ export function AppShell() {
           setAddDefaultBoxId(box.id)
           setAdding(true)
         }}
+        onAddExisting={(box) => setAssigningToBox(box)}
         onSelectPiece={(piece) => setSelected(piece)}
       />
     )
