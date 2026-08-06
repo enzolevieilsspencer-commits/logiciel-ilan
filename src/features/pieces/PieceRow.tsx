@@ -34,7 +34,14 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-ink">{title}</p>
+        <p className="flex items-center gap-1.5 truncate font-semibold text-ink">
+          <span className="truncate">{title}</span>
+          {piece.quantite > 1 && (
+            <span className="shrink-0 rounded-full bg-app px-1.5 text-xs font-bold text-teal-dark">
+              ×{piece.quantite}
+            </span>
+          )}
+        </p>
         <p className="truncate text-sm text-muted">{meta || '—'}</p>
       </div>
       {vendue ? (

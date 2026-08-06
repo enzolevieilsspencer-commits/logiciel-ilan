@@ -17,7 +17,7 @@ export function useDashboard() {
     setError(null)
     const { data, error: e } = await supabase
       .from('piece')
-      .select('prix_achat_cents, prix_vente_cents, statut, sold_at, categorie')
+      .select('prix_achat_cents, prix_vente_cents, statut, sold_at, categorie, quantite, box_id')
     if (e) {
       setError('Impossible de charger le tableau de bord.')
       setLoading(false)

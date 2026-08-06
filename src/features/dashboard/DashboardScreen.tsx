@@ -15,7 +15,9 @@ import {
   computeDashboard,
   beneficesSeries,
   repartitionStock,
+  withEffectiveCost,
   type PriceRow,
+  type BoxLike,
   type MonthBucket,
   type CategorieCount,
   type Timeframe,
@@ -222,18 +224,23 @@ function CategoryBars({ data }: { data: CategorieCount[] }) {
 
 interface DashboardScreenProps {
   rows: PriceRow[]
+  boxes: BoxLike[]
   empty: boolean
   loading: boolean
   error: string | null
   onAdd: () => void
 }
 
-export function DashboardScreen({ rows, empty, loading, error, onAdd }: DashboardScreenProps) {
+export function DashboardScreen({ rows: rawRows, boxes, empty, loading, error, onAdd }: DashboardScreenProps) {
   const [period, setPeriod] = useState<Period>('total')
   const [tf, setTf] = useState<string>('6m')
+  // Coût des articles en box réparti depuis le prix du lot.
+  const rows = withEffectiveCost(rawRows, boxes)
+  const sumQty = (statut: string) =>
+    rows.filter((r) => r.statut === statut).reduce((n, r) => n + (r.quantite ?? 1), 0)
   const data = computeDashboard(rows, boundaryISO(period))
-  const nbEnStock = rows.filter((r) => r.statut === 'en_stock').length
-  const nbVendues = rows.filter((r) => r.statut === 'vendue').length
+  const nbEnStock = sumQty('en_stock')
+  const nbVendues = sumQty('vendue')
   const timeframe = TIMEFRAMES.find((t) => t.key === tf) ?? TIMEFRAMES[2]
   const series = beneficesSeries(rows, timeframe.unit, timeframe.count)
   const repartition = repartitionStock(rows)

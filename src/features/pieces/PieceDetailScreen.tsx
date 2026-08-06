@@ -11,24 +11,28 @@ import {
   dateInputToISO,
   type Piece,
 } from './types'
+import type { Box } from '../boxes/types'
 import { uploadPhoto, deletePhoto } from './storage'
 import { computeMargin } from '../../lib/derive'
 import { updatePiece, deletePiece, sellPiece, restockPiece, type PiecePatch } from './updatePiece'
 
 interface PieceDetailScreenProps {
   piece: Piece
+  boxes: Box[]
   onBack: () => void
   onChanged: () => void
   onDeleted: () => void
 }
 
-export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: PieceDetailScreenProps) {
+export function PieceDetailScreen({ piece, boxes, onBack, onChanged, onDeleted }: PieceDetailScreenProps) {
   const [categorie, setCategorie] = useState(piece.categorie)
   const [couleur, setCouleur] = useState(piece.couleur)
   const [taille, setTaille] = useState(piece.taille ?? '')
   const [marque, setMarque] = useState(piece.marque ?? '')
   const [prixAchat, setPrixAchat] = useState(centsToEuros(piece.prix_achat_cents))
   const [prixVente, setPrixVente] = useState(centsToEuros(piece.prix_vente_cents))
+  const [quantite, setQuantite] = useState(String(piece.quantite ?? 1))
+  const [boxId, setBoxId] = useState<string | null>(piece.box_id)
   const [soldDate, setSoldDate] = useState(isoToDateInput(piece.sold_at))
   const [newPhoto, setNewPhoto] = useState<File | null>(null)
 
@@ -80,8 +84,11 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
       couleur,
       taille: taille || null,
       marque: marque || null,
-      prix_achat_cents: prixAchatCents,
+      // Article en box : le coût est porté par le lot → prix d'achat individuel neutralisé.
+      prix_achat_cents: boxId ? null : prixAchatCents,
       prix_vente_cents: prixVenteCents,
+      quantite: Math.max(1, Math.floor(Number(quantite) || 1)),
+      box_id: boxId,
     }
     // Pièce déjà vendue : on autorise la correction de la date de vente.
     if (piece.statut === 'vendue') {
@@ -239,10 +246,41 @@ export function PieceDetailScreen({ piece, onBack, onChanged, onDeleted }: Piece
           </div>
 
           <div className="flex gap-3">
-            <label className={labelClass}>
-              Prix d’achat (€)
-              <input inputMode="decimal" value={prixAchat} onChange={(e) => setPrixAchat(e.target.value)} className={inputClass} />
+            <label className={`${labelClass} max-w-[7.5rem]`}>
+              Quantité
+              <input
+                type="number"
+                min={1}
+                inputMode="numeric"
+                value={quantite}
+                onChange={(e) => setQuantite(e.target.value)}
+                className={inputClass}
+              />
             </label>
+            <label className={labelClass}>
+              Box
+              <select
+                value={boxId ?? ''}
+                onChange={(e) => setBoxId(e.target.value || null)}
+                className={inputClass}
+              >
+                <option value="">Aucune (à l'unité)</option>
+                {boxes.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.nom}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="flex gap-3">
+            {!boxId && (
+              <label className={labelClass}>
+                Prix d’achat (€)
+                <input inputMode="decimal" value={prixAchat} onChange={(e) => setPrixAchat(e.target.value)} className={inputClass} />
+              </label>
+            )}
             <label className={labelClass}>
               Prix de vente (€)
               <input inputMode="decimal" value={prixVente} onChange={(e) => setPrixVente(e.target.value)} className={inputClass} />

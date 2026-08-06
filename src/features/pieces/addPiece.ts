@@ -8,6 +8,8 @@ export interface NewPieceInput {
   taille: string
   marque: string
   prixAchatCents: number | null
+  quantite: number
+  boxId: string | null
 }
 
 export interface AddPieceResult {
@@ -38,7 +40,10 @@ export async function createPiece(input: NewPieceInput): Promise<AddPieceResult>
     couleur: input.couleur,
     taille: input.taille || null,
     marque: input.marque || null,
-    prix_achat_cents: input.prixAchatCents,
+    // Article rangé dans une box : le coût est porté par le lot, pas par l'article.
+    prix_achat_cents: input.boxId ? null : input.prixAchatCents,
+    quantite: input.quantite,
+    box_id: input.boxId,
     statut: 'en_stock',
   })
   if (error) throw error

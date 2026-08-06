@@ -3,13 +3,16 @@ import { ArrowLeft, Camera, Check, Images } from 'lucide-react'
 import { Chips } from '../../components/ui/Chips'
 import { CATEGORIES, COULEURS, eurosToCents } from './types'
 import { createPiece } from './addPiece'
+import type { Box } from '../boxes/types'
 
 interface AddPieceScreenProps {
   onCancel: () => void
   onAdded: () => void
+  boxes: Box[]
+  defaultBoxId?: string | null
 }
 
-export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
+export function AddPieceScreen({ onCancel, onAdded, boxes, defaultBoxId = null }: AddPieceScreenProps) {
   const [photo, setPhoto] = useState<File | null>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
@@ -19,6 +22,8 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
   const [taille, setTaille] = useState('')
   const [marque, setMarque] = useState('')
   const [prixAchat, setPrixAchat] = useState('')
+  const [quantite, setQuantite] = useState('1')
+  const [boxId, setBoxId] = useState<string | null>(defaultBoxId)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,13 +41,23 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
     e.preventDefault()
     setError(null)
     const prixAchatCents = eurosToCents(prixAchat)
-    if (prixAchat.trim() !== '' && prixAchatCents === null) {
+    if (!boxId && prixAchat.trim() !== '' && prixAchatCents === null) {
       setError('Prix d’achat invalide.')
       return
     }
+    const q = Math.max(1, Math.floor(Number(quantite) || 1))
     setSubmitting(true)
     try {
-      const { photoSkipped } = await createPiece({ photo, categorie, couleur, taille, marque, prixAchatCents })
+      const { photoSkipped } = await createPiece({
+        photo,
+        categorie,
+        couleur,
+        taille,
+        marque,
+        prixAchatCents,
+        quantite: q,
+        boxId,
+      })
       if (photoSkipped) {
         alert('Pièce ajoutée, mais la photo n’a pas pu être enregistrée. Tu pourras la rajouter plus tard.')
       }
@@ -156,16 +171,52 @@ export function AddPieceScreen({ onCancel, onAdded }: AddPieceScreenProps) {
               </label>
             </div>
 
-            <label className="flex flex-col gap-1 text-sm font-semibold text-muted">
-              Prix d’achat (€)
-              <input
-                inputMode="decimal"
-                value={prixAchat}
-                onChange={(e) => setPrixAchat(e.target.value)}
-                placeholder="ex. 6"
-                className={inputClass}
-              />
-            </label>
+            <div className="flex gap-3">
+              <label className={`${labelClass} max-w-[7.5rem]`}>
+                Quantité
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={quantite}
+                  onChange={(e) => setQuantite(e.target.value)}
+                  className={inputClass}
+                />
+              </label>
+              <label className={labelClass}>
+                Box
+                <select
+                  value={boxId ?? ''}
+                  onChange={(e) => setBoxId(e.target.value || null)}
+                  className={inputClass}
+                >
+                  <option value="">Aucune (à l'unité)</option>
+                  {boxes.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.nom}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {boxId ? (
+              <p className="rounded-[var(--radius-md)] bg-app px-4 py-3 text-xs text-muted">
+                Le prix d'achat est porté par la box (lot). Tu renseigneras seulement le prix de vente au moment de
+                vendre.
+              </p>
+            ) : (
+              <label className="flex flex-col gap-1 text-sm font-semibold text-muted">
+                Prix d’achat (€)
+                <input
+                  inputMode="decimal"
+                  value={prixAchat}
+                  onChange={(e) => setPrixAchat(e.target.value)}
+                  placeholder="ex. 6"
+                  className={inputClass}
+                />
+              </label>
+            )}
           </section>
 
           {error && <p className="text-sm font-medium text-amber">{error}</p>}

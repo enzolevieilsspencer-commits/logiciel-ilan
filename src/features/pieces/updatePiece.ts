@@ -12,6 +12,8 @@ export type PiecePatch = Partial<
     | 'prix_achat_cents'
     | 'prix_vente_cents'
     | 'sold_at'
+    | 'quantite'
+    | 'box_id'
   >
 >
 

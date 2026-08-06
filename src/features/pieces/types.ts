@@ -13,6 +13,10 @@ export interface Piece {
   statut: Statut
   created_at: string
   sold_at: string | null
+  /** Quantité d'articles identiques sur cette ligne (>= 1). Les prix sont à l'unité. */
+  quantite: number
+  /** Box (lot) à laquelle l'article est rattaché, ou null si vendu à l'unité. */
+  box_id: string | null
 }
 
 // Listes fermées « style Vinted » (catégorie & couleur en chips mono-choix).

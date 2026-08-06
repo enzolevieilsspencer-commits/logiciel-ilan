@@ -12,29 +12,74 @@ import { PieceDetailScreen } from '../features/pieces/PieceDetailScreen'
 import { useDashboard } from '../features/dashboard/useDashboard'
 import { DashboardScreen } from '../features/dashboard/DashboardScreen'
 import { SettingsScreen } from '../features/settings/SettingsScreen'
+import { useBoxes } from '../features/boxes/useBoxes'
+import { BoxListScreen } from '../features/boxes/BoxListScreen'
+import { BoxDetailScreen } from '../features/boxes/BoxDetailScreen'
+import { AddBoxScreen } from '../features/boxes/AddBoxScreen'
+import type { Box } from '../features/boxes/types'
 import type { Piece } from '../features/pieces/types'
+
+type StockView = 'articles' | 'box'
 
 export function AppShell() {
   const [tab, setTab] = useState<TabKey>('accueil')
+  const [stockView, setStockView] = useState<StockView>('articles')
   const [adding, setAdding] = useState(false)
+  const [addDefaultBoxId, setAddDefaultBoxId] = useState<string | null>(null)
   const [selected, setSelected] = useState<Piece | null>(null)
+  const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null)
+  const [addingBox, setAddingBox] = useState(false)
+  const [editingBox, setEditingBox] = useState<Box | null>(null)
+
   const { pieces, urls, loading, error, refresh } = usePieces('en_stock')
   const history = usePieces('vendue')
   const dashboard = useDashboard()
+  const { boxes, refresh: refreshBoxes } = useBoxes()
 
-  // Rafraîchit stock + historique + tableau de bord après toute mutation.
+  // Toutes les pièces (stock + vendues) pour les calculs de box.
+  const allPieces = [...pieces, ...history.pieces]
+  const allUrls = { ...urls, ...history.urls }
+  const selectedBox = boxes.find((b) => b.id === selectedBoxId) ?? null
+
+  // Rafraîchit stock + historique + tableau de bord + box après toute mutation.
   const refreshAll = () => {
     refresh()
     history.refresh()
     dashboard.refresh()
+    refreshBoxes()
+  }
+
+  // — Overlays plein écran (priorité décroissante) —
+
+  if (addingBox || editingBox) {
+    return (
+      <AddBoxScreen
+        box={editingBox}
+        onCancel={() => {
+          setAddingBox(false)
+          setEditingBox(null)
+        }}
+        onSaved={() => {
+          setAddingBox(false)
+          setEditingBox(null)
+          refreshBoxes()
+        }}
+      />
+    )
   }
 
   if (adding) {
     return (
       <AddPieceScreen
-        onCancel={() => setAdding(false)}
+        boxes={boxes}
+        defaultBoxId={addDefaultBoxId}
+        onCancel={() => {
+          setAdding(false)
+          setAddDefaultBoxId(null)
+        }}
         onAdded={() => {
           setAdding(false)
+          setAddDefaultBoxId(null)
           refreshAll()
         }}
       />
@@ -45,6 +90,7 @@ export function AppShell() {
     return (
       <PieceDetailScreen
         piece={selected}
+        boxes={boxes}
         onBack={() => setSelected(null)}
         onChanged={() => {
           setSelected(null)
@@ -54,6 +100,27 @@ export function AppShell() {
           setSelected(null)
           refreshAll()
         }}
+      />
+    )
+  }
+
+  if (selectedBox) {
+    return (
+      <BoxDetailScreen
+        box={selectedBox}
+        pieces={allPieces}
+        urls={allUrls}
+        onBack={() => setSelectedBoxId(null)}
+        onEdit={(box) => setEditingBox(box)}
+        onDeleted={() => {
+          setSelectedBoxId(null)
+          refreshAll()
+        }}
+        onAddArticle={(box) => {
+          setAddDefaultBoxId(box.id)
+          setAdding(true)
+        }}
+        onSelectPiece={(piece) => setSelected(piece)}
       />
     )
   }
@@ -71,6 +138,7 @@ export function AppShell() {
         {tab === 'accueil' && (
           <DashboardScreen
             rows={dashboard.rows}
+            boxes={boxes}
             empty={dashboard.empty}
             loading={dashboard.loading}
             error={dashboard.error}
@@ -79,7 +147,38 @@ export function AppShell() {
         )}
 
         {tab === 'stock' && (
+          <div className="mx-auto max-w-3xl px-4 pt-4 md:px-6 md:pt-6">
+            {/* Bascule Articles / Box */}
+            <div className="mb-1 flex gap-1 rounded-full bg-surface p-1 shadow-sm">
+              {(['articles', 'box'] as StockView[]).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setStockView(v)}
+                  className={`flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
+                    stockView === v ? 'bg-teal text-white' : 'text-muted'
+                  }`}
+                >
+                  {v === 'articles' ? 'Articles' : 'Box'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'stock' && stockView === 'articles' && (
           <StockScreen pieces={pieces} urls={urls} loading={loading} error={error} onSelect={setSelected} />
+        )}
+
+        {tab === 'stock' && stockView === 'box' && (
+          <BoxListScreen
+            boxes={boxes}
+            pieces={allPieces}
+            loading={loading || history.loading}
+            error={error}
+            onSelect={(box) => setSelectedBoxId(box.id)}
+            onAdd={() => setAddingBox(true)}
+          />
         )}
 
         {tab === 'stats' && (

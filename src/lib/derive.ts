@@ -27,6 +27,39 @@ export interface PriceRow {
   prix_vente_cents: number | null
   sold_at: string | null
   categorie?: string | null
+  /** Quantité (prix à l'unité). Défaut 1. */
+  quantite?: number | null
+  /** Box de rattachement, ou null. */
+  box_id?: string | null
+}
+
+/** Box minimale pour la répartition du coût (coût du lot). */
+export interface BoxLike {
+  id: string
+  prix_achat_cents: number | null
+}
+
+/** Coût unitaire effectif d'une box = prix du lot ÷ nombre total d'unités qu'elle contient. */
+export function boxUnitCost(pieces: PriceRow[], boxes: BoxLike[]): Map<string, number> {
+  const units = new Map<string, number>()
+  for (const p of pieces) {
+    if (p.box_id) units.set(p.box_id, (units.get(p.box_id) ?? 0) + (p.quantite ?? 1))
+  }
+  const cost = new Map<string, number>()
+  for (const b of boxes) {
+    const u = units.get(b.id) ?? 0
+    cost.set(b.id, u > 0 && b.prix_achat_cents != null ? b.prix_achat_cents / u : 0)
+  }
+  return cost
+}
+
+/**
+ * Remplace le prix d'achat unitaire des articles rattachés à une box par le coût
+ * réparti du lot. Les articles à l'unité gardent leur prix d'achat. DÉRIVÉ.
+ */
+export function withEffectiveCost(pieces: PriceRow[], boxes: BoxLike[]): PriceRow[] {
+  const cost = boxUnitCost(pieces, boxes)
+  return pieces.map((p) => (p.box_id ? { ...p, prix_achat_cents: cost.get(p.box_id) ?? 0 } : p))
 }
 
 export interface DashboardData {
@@ -49,14 +82,15 @@ export function computeDashboard(pieces: PriceRow[], soldAfterISO: string | null
   let argentDormantCents = 0
 
   for (const p of pieces) {
+    const q = p.quantite ?? 1
     if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null) {
       const dansPeriode = p.sold_at != null && (soldAfterISO === null || p.sold_at >= soldAfterISO)
       if (dansPeriode) {
-        beneficesCents += p.prix_vente_cents - p.prix_achat_cents
-        sommeAchatVendues += p.prix_achat_cents
+        beneficesCents += (p.prix_vente_cents - p.prix_achat_cents) * q
+        sommeAchatVendues += p.prix_achat_cents * q
       }
     } else if (p.statut === 'en_stock' && p.prix_achat_cents != null) {
-      argentDormantCents += p.prix_achat_cents
+      argentDormantCents += p.prix_achat_cents * q
     }
   }
 
@@ -102,7 +136,7 @@ export function beneficesParMois(pieces: PriceRow[], n = 6, now: Date = new Date
     if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null && p.sold_at) {
       const d = new Date(p.sold_at)
       const b = buckets.find((x) => x.y === d.getFullYear() && x.m === d.getMonth())
-      if (b) b.beneficesCents += p.prix_vente_cents - p.prix_achat_cents
+      if (b) b.beneficesCents += (p.prix_vente_cents - p.prix_achat_cents) * (p.quantite ?? 1)
     }
   }
   return buckets.map(({ label, beneficesCents }) => ({ label, beneficesCents }))
@@ -150,7 +184,7 @@ export function beneficesSeries(
     if (p.statut === 'vendue' && p.prix_achat_cents != null && p.prix_vente_cents != null && p.sold_at) {
       const t = new Date(p.sold_at).getTime()
       const b = buckets.find((x) => t >= x.start && t < x.end)
-      if (b) b.beneficesCents += p.prix_vente_cents - p.prix_achat_cents
+      if (b) b.beneficesCents += (p.prix_vente_cents - p.prix_achat_cents) * (p.quantite ?? 1)
     }
   }
   return buckets.map(({ label, beneficesCents }) => ({ label, beneficesCents }))
@@ -166,7 +200,7 @@ export function repartitionStock(pieces: PriceRow[]): CategorieCount[] {
   const map = new Map<string, number>()
   for (const p of pieces) {
     if (p.statut === 'en_stock' && p.categorie) {
-      map.set(p.categorie, (map.get(p.categorie) ?? 0) + 1)
+      map.set(p.categorie, (map.get(p.categorie) ?? 0) + (p.quantite ?? 1))
     }
   }
   return [...map.entries()]
