@@ -121,9 +121,27 @@ export function BoxDetailScreen({
           </div>
 
           {articles.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-[var(--radius-card)] bg-surface p-8 text-center shadow-sm">
+            <div className="flex flex-col items-center gap-3 rounded-[var(--radius-card)] bg-surface p-8 text-center shadow-sm">
               <Package size={28} className="text-teal-dark/50" />
-              <p className="text-sm text-muted">Aucun article dans cette box. Ajoute-en un pour commencer.</p>
+              <p className="text-sm text-muted">
+                Cette box est vide. Choisis des articles déjà créés à y ranger, ou crée-en un nouveau.
+              </p>
+              <div className="mt-1 flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onAddExisting(box)}
+                  className="flex items-center gap-1.5 rounded-[var(--radius-md)] bg-teal px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+                >
+                  <ListPlus size={16} /> Choisir des articles
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAddArticle(box)}
+                  className="flex items-center gap-1.5 rounded-[var(--radius-md)] bg-app px-4 py-2.5 text-sm font-semibold text-teal-dark ring-1 ring-teal/30"
+                >
+                  <Plus size={16} /> Nouvel article
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
