@@ -145,14 +145,22 @@ export function BoxDetailScreen({
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
-              {articles.map((piece) => (
-                <PieceRow
-                  key={piece.id}
-                  piece={piece}
-                  photoUrl={piece.photo_path ? urls[piece.photo_path] : undefined}
-                  onSelect={onSelectPiece}
-                />
-              ))}
+              {articles.map((piece) => {
+                // Marge allouée = quantité × (prix de vente − coût unitaire réparti du lot).
+                const marge =
+                  piece.statut === 'vendue' && piece.prix_vente_cents != null
+                    ? Math.round((piece.prix_vente_cents - s.unitCostCents) * (piece.quantite ?? 1))
+                    : null
+                return (
+                  <PieceRow
+                    key={piece.id}
+                    piece={piece}
+                    photoUrl={piece.photo_path ? urls[piece.photo_path] : undefined}
+                    onSelect={onSelectPiece}
+                    marginCents={marge}
+                  />
+                )
+              })}
             </div>
           )}
 

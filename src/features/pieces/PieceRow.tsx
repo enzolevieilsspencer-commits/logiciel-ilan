@@ -6,6 +6,9 @@ interface PieceRowProps {
   piece: Piece
   photoUrl?: string
   onSelect: (piece: Piece) => void
+  /** Marge (centimes) à afficher pour une pièce vendue, si le coût est externe (box).
+   *  `undefined` = calcul par défaut depuis prix_achat/vente ; `null` = pas de marge. */
+  marginCents?: number | null
 }
 
 function formatMargeEuros(margeCents: number): string {
@@ -13,11 +16,15 @@ function formatMargeEuros(margeCents: number): string {
   return `${margeCents < 0 ? '−' : '+'}${abs} €`
 }
 
-export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
+export function PieceRow({ piece, photoUrl, onSelect, marginCents }: PieceRowProps) {
   const meta = [piece.categorie, piece.couleur, piece.taille].filter(Boolean).join(' · ')
   const title = piece.marque ? `${piece.categorie ?? 'Pièce'} · ${piece.marque}` : piece.categorie ?? 'Pièce'
   const vendue = piece.statut === 'vendue'
-  const marge = vendue ? computeMargin(piece.prix_achat_cents, piece.prix_vente_cents) : null
+  const margeCents = vendue
+    ? marginCents !== undefined
+      ? marginCents
+      : (computeMargin(piece.prix_achat_cents, piece.prix_vente_cents)?.margeCents ?? null)
+    : null
   const stagnante = !vendue && isStale(piece.created_at)
 
   return (
@@ -49,9 +56,9 @@ export function PieceRow({ piece, photoUrl, onSelect }: PieceRowProps) {
           <span className="rounded-full bg-[color:var(--color-green)]/15 px-2.5 py-1 text-xs font-semibold text-green">
             vendu
           </span>
-          {marge && (
-            <span className={`text-sm font-bold ${marge.margeCents >= 0 ? 'text-green' : 'text-amber'}`}>
-              {formatMargeEuros(marge.margeCents)}
+          {margeCents !== null && (
+            <span className={`text-sm font-bold ${margeCents >= 0 ? 'text-green' : 'text-amber'}`}>
+              {formatMargeEuros(margeCents)}
             </span>
           )}
         </div>
