@@ -22,8 +22,11 @@ export function AssignArticlesScreen({ box, pieces, urls, onCancel, onDone }: As
   const [selected, setSelected] = useState<Set<string>>(initial)
   const [submitting, setSubmitting] = useState(false)
 
-  // Tous les articles : en stock d'abord, puis les vendus.
-  const list = [...pieces].sort((a, b) => (a.statut === b.statut ? 0 : a.statut === 'en_stock' ? -1 : 1))
+  // Un article ne peut appartenir qu'à une seule box : on exclut ceux déjà
+  // rattachés à une AUTRE box. Restent les articles libres + ceux de cette box.
+  const list = pieces
+    .filter((p) => p.box_id == null || p.box_id === box.id)
+    .sort((a, b) => (a.statut === b.statut ? 0 : a.statut === 'en_stock' ? -1 : 1))
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -81,7 +84,6 @@ export function AssignArticlesScreen({ box, pieces, urls, onCancel, onDone }: As
                 ? `${piece.categorie ?? 'Pièce'} · ${piece.marque}`
                 : piece.categorie ?? 'Pièce'
               const meta = [piece.couleur, piece.taille].filter(Boolean).join(' · ')
-              const inOtherBox = piece.box_id != null && piece.box_id !== box.id
               return (
                 <button
                   key={piece.id}
@@ -118,7 +120,6 @@ export function AssignArticlesScreen({ box, pieces, urls, onCancel, onDone }: As
                     <p className="truncate text-sm text-muted">
                       {meta || '—'}
                       {piece.statut === 'vendue' ? ' · vendu' : ''}
-                      {inOtherBox ? ' · dans une autre box' : ''}
                     </p>
                   </div>
                 </button>

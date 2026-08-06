@@ -20,11 +20,12 @@ export function PieceRow({ piece, photoUrl, onSelect, marginCents }: PieceRowPro
   const meta = [piece.categorie, piece.couleur, piece.taille].filter(Boolean).join(' · ')
   const title = piece.marque ? `${piece.categorie ?? 'Pièce'} · ${piece.marque}` : piece.categorie ?? 'Pièce'
   const vendue = piece.statut === 'vendue'
-  const margeCents = vendue
-    ? marginCents !== undefined
+  const margeCents =
+    marginCents !== undefined
       ? marginCents
-      : (computeMargin(piece.prix_achat_cents, piece.prix_vente_cents)?.margeCents ?? null)
-    : null
+      : vendue
+        ? (computeMargin(piece.prix_achat_cents, piece.prix_vente_cents)?.margeCents ?? null)
+        : null
   const stagnante = !vendue && isStale(piece.created_at)
 
   return (
@@ -67,6 +68,11 @@ export function PieceRow({ piece, photoUrl, onSelect, marginCents }: PieceRowPro
           <span className="rounded-full bg-app px-2.5 py-1 text-xs font-semibold text-teal-dark">
             en stock
           </span>
+          {margeCents !== null && (
+            <span className={`text-sm font-bold opacity-70 ${margeCents >= 0 ? 'text-green' : 'text-amber'}`}>
+              ~{formatMargeEuros(margeCents)}
+            </span>
+          )}
           {stagnante && <span className="text-xs font-semibold text-amber">à brader</span>}
         </div>
       )}
