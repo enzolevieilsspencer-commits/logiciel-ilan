@@ -127,6 +127,7 @@ export function AppShell() {
     return (
       <BoxDetailScreen
         box={selectedBox}
+        boxes={boxes}
         pieces={allPieces}
         urls={allUrls}
         onBack={() => setSelectedBoxId(null)}
@@ -135,6 +136,7 @@ export function AppShell() {
           setSelectedBoxId(null)
           refreshAll()
         }}
+        onChanged={refreshAll}
         onAddArticle={(box) => {
           setAddDefaultBoxId(box.id)
           setAdding(true)

@@ -1,18 +1,20 @@
 import { useState } from 'react'
-import { ArrowLeft, Pencil, Plus, Trash2, Package, ListPlus } from 'lucide-react'
+import { ArrowLeft, ArrowRightLeft, Pencil, Plus, Trash2, Package, PackageMinus, ListPlus, X } from 'lucide-react'
 import { PieceRow } from '../pieces/PieceRow'
 import { computeBoxStats } from './boxStats'
-import { deleteBox } from './mutateBox'
+import { deleteBox, assignPiecesToBox } from './mutateBox'
 import type { Box } from './types'
 import type { Piece } from '../pieces/types'
 
 interface BoxDetailScreenProps {
   box: Box
+  boxes: Box[]
   pieces: Piece[]
   urls: Record<string, string>
   onBack: () => void
   onEdit: (box: Box) => void
   onDeleted: () => void
+  onChanged: () => void
   onAddArticle: (box: Box) => void
   onAddExisting: (box: Box) => void
   onSelectPiece: (piece: Piece) => void
@@ -25,11 +27,13 @@ function euros(cents: number): string {
 
 export function BoxDetailScreen({
   box,
+  boxes,
   pieces,
   urls,
   onBack,
   onEdit,
   onDeleted,
+  onChanged,
   onAddArticle,
   onAddExisting,
   onSelectPiece,
@@ -153,19 +157,21 @@ export function BoxDetailScreen({
                     ? Math.round((piece.prix_vente_cents - s.unitCostCents) * (piece.quantite ?? 1))
                     : null
                 return (
-                  <PieceRow
+                  <BoxArticleRow
                     key={piece.id}
                     piece={piece}
                     photoUrl={piece.photo_path ? urls[piece.photo_path] : undefined}
-                    onSelect={onSelectPiece}
                     marginCents={marge}
+                    otherBoxes={boxes.filter((b) => b.id !== box.id)}
+                    onSelect={onSelectPiece}
+                    onChanged={onChanged}
                   />
                 )
               })}
             </div>
           )}
 
-          {/* Suppression */}
+          {/* Suppression de la box */}
           <div className="pt-2">
             {!confirmDelete ? (
               <button
@@ -203,5 +209,90 @@ export function BoxDetailScreen({
         </div>
       </div>
     </main>
+  )
+}
+
+interface BoxArticleRowProps {
+  piece: Piece
+  photoUrl?: string
+  marginCents: number | null
+  /** Autres box vers lesquelles déplacer l'article (la box courante exclue). */
+  otherBoxes: Box[]
+  onSelect: (piece: Piece) => void
+  onChanged: () => void
+}
+
+/**
+ * Ligne d'article dans une box, avec actions rapides de correction :
+ * « Retirer » (redevient un article à l'unité) et « Déplacer » vers une autre box.
+ */
+function BoxArticleRow({ piece, photoUrl, marginCents, otherBoxes, onSelect, onChanged }: BoxArticleRowProps) {
+  const [moving, setMoving] = useState(false)
+  const [busy, setBusy] = useState(false)
+
+  // Rattache l'article ailleurs (ou le détache si null). L'article quitte alors cette box.
+  async function reassign(boxId: string | null) {
+    setBusy(true)
+    try {
+      await assignPiecesToBox([piece.id], boxId)
+      onChanged()
+    } catch {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5 rounded-[var(--radius-md)] bg-surface p-1.5 shadow-sm">
+      <PieceRow piece={piece} photoUrl={photoUrl} onSelect={onSelect} marginCents={marginCents} />
+
+      {moving ? (
+        <div className="flex flex-col gap-1.5 rounded-[var(--radius-sm)] bg-app p-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-semibold text-muted">Déplacer vers…</span>
+            <button
+              type="button"
+              onClick={() => setMoving(false)}
+              className="flex items-center gap-1 text-xs font-semibold text-muted"
+            >
+              <X size={13} /> Annuler
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {otherBoxes.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => reassign(b.id)}
+                disabled={busy}
+                className="rounded-full bg-surface px-3 py-1.5 text-sm font-semibold text-teal-dark shadow-sm ring-1 ring-teal/30 disabled:opacity-60"
+              >
+                {b.nom}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2 px-1 pb-0.5">
+          <button
+            type="button"
+            onClick={() => reassign(null)}
+            disabled={busy}
+            className="flex items-center gap-1.5 text-xs font-semibold text-amber disabled:opacity-60"
+          >
+            <PackageMinus size={14} /> Retirer de la box
+          </button>
+          {otherBoxes.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setMoving(true)}
+              disabled={busy}
+              className="flex items-center gap-1.5 text-xs font-semibold text-teal-dark disabled:opacity-60"
+            >
+              <ArrowRightLeft size={14} /> Déplacer
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
